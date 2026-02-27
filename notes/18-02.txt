@@ -1,0 +1,3 @@
+arr fun
+:
+It is used ot simplify funciton exp:
