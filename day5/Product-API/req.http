@@ -1,0 +1,31 @@
+###
+GET http://localhost:3000/products
+Cache-Control: no-cache
+
+//dont write products/100
+###
+GET http://localhost:3000/products/102
+
+###
+POST http://localhost:3000/products  
+Content-Type: application/json
+
+{
+    "id":101,
+    "pname":"Banana",
+    "qty":24
+}
+
+###
+PUT http://localhost:3000/products
+Content-Type: application/json
+
+{
+    "id":101,
+    "pname":"Banana",
+    "qty":24
+}
+
+###
+DELETE http://localhost:3000/products/101
+

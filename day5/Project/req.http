@@ -1,0 +1,29 @@
+### Read all users
+GET http://localhost:3000/users
+
+### Read a users by id
+GET http://localhost:3000/users/101
+
+### create a new user
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "id":101,
+    "name":"Sachin",
+    "age":20
+}
+###  Update the user data
+PUT http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "id":103,
+    "name":"ravi kumar",
+    "age":22
+
+}
+
+### delete a user by id
+DELETE http://localhost:3000/users/100
+
