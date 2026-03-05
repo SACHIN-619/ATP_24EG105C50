@@ -1,13 +1,13 @@
 ###
-GET http://localhost:3000/products
+GET http://localhost:3000/Product-api/products
 Cache-Control: no-cache
 
 //dont write products/100
 ###
-GET http://localhost:3000/products/102
+GET http://localhost:3000/Product-api/products/102
 
 ###
-POST http://localhost:3000/products  
+POST http://localhost:3000/Product-api/products  
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:3000/products
+PUT http://localhost:3000/Product-api/products
 Content-Type: application/json
 
 {
@@ -27,5 +27,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3000/products/101
+DELETE http://localhost:3000/Product-api/products/101
 
