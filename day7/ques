@@ -1,0 +1,31 @@
+different between DP,TCP vs http
+what is asynchrounous ?
+
+what is the role of event loop when synchronous?
+
+when js program starts stack and quesue exists in js engine.?
+
+js -> single thread only.  js engine is not js runtime.
+we can js engine jre
+
+Db cilent->mongoDB.  
+
+ 
+ when we call findone it return ?? ->docu.
+
+ updateone or updateMany returns obj. matchedDocu. and modified we understand the modifictaion.
+
+ creating http server->express( https server so many others feature like auth (enitre express app) )
+
+ <!-- mongo ODM
+ 
+ asynchrounous op ->fetch -->
+
+
+ DB op is bloacking op.
+
+ all DB returns op return promise
+
+ to consume th promise we use Aync and await
+
+ 
