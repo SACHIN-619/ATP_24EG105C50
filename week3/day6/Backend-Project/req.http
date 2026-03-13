@@ -1,0 +1,76 @@
+GET http://localhost:9000/user-api/user
+Cookie: 
+
+###
+GET http://localhost:9000/user-api/users/69aa765dd30060f8f00abcd0
+
+
+
+### create new User
+POST http://localhost:9000/user-api/users
+content-Type: application/json
+
+{
+    "username":"tOny",
+    "password":"machli..",
+    "email":"tOOny@mail.com",
+    "age":20
+} 
+
+###
+PUT http://localhost:9000/user-api/users
+Content-Type: application/json
+
+{
+    "username":"Bu",
+    "password":"bhanu",
+    "email":"bhanu@mail.com"
+    
+} 
+
+###
+DELETE http://localhost:9000/user-api/users/69aa765dd30060f8f00abcd0
+
+
+
+
+### user login
+POST http://localhost:9000/user-api/auth
+content-Type: application/json
+
+{
+   // # "username":"tOOny",
+    "email":"tOOny@mail.com",
+    "password":"machli.."
+   // # "age":20
+} 
+
+//--------------------------------------
+### get
+GET http://localhost:9000/prod-api/prod
+
+###Add product to user cart
+PUT http://localhost:9000/user-api/cart/product-id/69abd5275f53fe48a7868161
+Content-Type: application/json
+
+{
+    "productId":"one1",
+    "productName":"banana",
+    "price":12000,
+    "brand": "Natural"
+}
+
+###
+POST http://localhost:9000/prod-api/prod
+content-Type: application/json
+
+{
+    "productId":"one1",
+    "productName":"banana",
+    "price":12000,
+    "brand": "Natural"
+} 
+
+###
+GET http://localhost:9000/prod-api/prod/69abd5275f53fe48a7868161
+
