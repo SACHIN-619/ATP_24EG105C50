@@ -1,0 +1,46 @@
+*{
+    margin:0px;
+    padding:0px;
+    box-sizing: border;
+}
+
+nav{
+    
+    display:flex;
+    justify-content: space-around;
+    background-color: rgb(236, 225, 210);
+    align-content: center;
+    padding:10px;
+    flex-wrap:wrap;
+}
+
+nav ul{
+    width:200px;
+
+    display:flex;
+    justify-content: space-around;
+    list-style-type: none;
+}
+
+main{
+    margin:25px 50px;
+    text-align: center;
+    background-color: rgb(192, 169, 214);
+}
+
+.cards{
+  display:flex;
+  gap: 15px;
+}
+img{
+ width:250px
+}
+
+@media screen and (max-width:500px){
+    .cards{
+        flex-direction: column;
+    }
+    main{
+        margin: 25px 20px;
+    }
+}

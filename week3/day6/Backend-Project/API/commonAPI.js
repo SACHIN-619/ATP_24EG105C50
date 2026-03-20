@@ -20,6 +20,4 @@ commonApp.post('/users',async (req,res)=>{
     await newUserDoc.save()
 
     res.status(201).json({message:"User Created"})
-
- 
 })

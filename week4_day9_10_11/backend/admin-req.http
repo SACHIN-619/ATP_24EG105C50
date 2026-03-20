@@ -1,0 +1,5 @@
+###Admin login\
+GET http://localhost/admin-api/auth
+###Read all uers and Authors(email)
+
+###Block or Activate User or Author

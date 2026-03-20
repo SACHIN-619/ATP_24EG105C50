@@ -1,0 +1,21 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+
+
+table{
+    text-align: center;
+    margin:auto;
+    margin-top:50px;
+    width:700px;
+    margin-bottom:200px;
+}
+
+table, th, td{ 
+
+    border: 2px solid rgb(0, 0, 0);
+    border-collapse: collapse;
+    padding:10px;
+}

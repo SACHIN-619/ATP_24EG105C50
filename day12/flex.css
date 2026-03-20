@@ -1,0 +1,39 @@
+.parent{
+    width:600px;
+    height: 1000px;
+    /* background-color: antiquewhite; */
+    /* justify-content: space-evenly; */
+    padding:30px;
+    display: flex;
+    /* flex-direction: column; */
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.child {
+   
+    box-shadow: 0px 0px 20px grey;
+    margin:10px;
+    margin-top:40px;
+    width:600px;
+    padding:30px;
+
+}
+img{
+    align-items: center;
+    border-radius:50%;
+    width:50px;
+    margin-bottom:50px;
+    margin-left: 11px;
+    height:50px
+    
+}
+
+h1{
+    font-size: larger;
+    margin-top: 20px;
+}
+
+h1, h2, h3{
+    margin: 20px;
+}

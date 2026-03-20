@@ -2,5 +2,11 @@
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1"
   }
 }

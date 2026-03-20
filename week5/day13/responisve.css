@@ -1,0 +1,19 @@
+*{
+    margin:0px;
+    padding:0px;
+    box-sizing: border-box;
+}
+
+h1{
+ text-align: end;
+ font-size:clamp(2rem,8vw,5rem)
+}
+
+
+img{
+    align-items: center;
+    /* width:400px; */
+    width:100%;
+    max-width: 600px;
+    margin:20px;
+}

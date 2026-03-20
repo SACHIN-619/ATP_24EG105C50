@@ -1,0 +1,19 @@
+*{
+    background-color: bisque;
+}
+
+img{
+
+    width:200px
+}
+
+.img1{
+   float:left;
+}
+.img2{
+ display:block;
+ margin:auto;
+}
+.img3{
+float:right;
+}
