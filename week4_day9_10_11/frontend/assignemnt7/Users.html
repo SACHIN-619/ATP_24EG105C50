@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Directory</title>
+    <style>
+        body {
+            background-color: rgb(142, 185, 170);
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            text-align: center;
+            margin: 50px;
+            border-collapse: collapse;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden; 
+            border-radius: 2%;
+        }
+
+        table th {
+            background-color: rgb(42, 95, 109);
+            color: rgb(194, 206, 216);
+            padding: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        table td {
+            background-color: rgb(223, 223, 223);
+            color: rgb(70, 131, 139);
+            padding: 12px 20px;
+        }
+
+        /* Using :nth-child(even) is more efficient than manual classes! */
+        table tr.even td {
+            background-color: rgb(180, 205, 200);
+        }
+
+        img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #999; /* Placeholder color */
+        }
+    </style>
+</head>
+<body>
+    <table>
+      <thead>
+        <tr>
+          <th colspan="5">Users</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="even">
+          <td><strong>Picture</strong></td>
+          <td><strong>Name</strong></td>
+          <td><strong>Email</strong></td>
+          <td><strong>Phone</strong></td>
+          <td><strong>Comments</strong></td>
+        </tr>
+        <tr>
+          <td><img src="https://via.placeholder.com/40" alt="DP"></td>
+          <td>Jane Doe</td>
+          <td>jane.doe@foo.com</td>
+          <td>01 800 2000</td>
+          <td>Lorem ipsum dolor sit amet consectetur adipisicing elit.</td>
+        </tr>
+        <tr class="even">
+          <td><img src="https://via.placeholder.com/40" alt="DP"></td>
+          <td>John Doe</td>
+          <td>john.doe@foo.com</td>
+          <td>01 800 2000</td>
+          <td>Aspernatur, commodi. Lorem ipsum dolor sit amet.</td>
+        </tr>
+        <tr>
+          <td><img src="https://via.placeholder.com/40" alt="DP"></td>
+          <td>Jane Doe</td>
+          <td>jane.doe@foo.com</td>
+          <td>01 800 2000</td>
+          <td>Lorem ipsum dolor sit amet consectetur adipisicing elit.</td>
+        </tr>
+      </tbody>
+    </table>
+</body>
+</html>
