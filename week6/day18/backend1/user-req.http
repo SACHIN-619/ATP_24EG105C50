@@ -1,0 +1,29 @@
+GET http://localhost:4000/user-api/auth
+
+###
+GET http://localhost:4000/auth/logout
+
+
+###
+GET http://localhost:4000/user-api/articles
+
+###
+PUT http://localhost:4000/user-api/articles
+Content-Type: application/json
+
+{
+    "articleId":"69b50cac263e13ab3439fbb1",
+    "comment":"this artcle was super helpful"
+}
+
+### why not UserID
+
+
+###change password
+PUT http://localhost:4000/auth/password
+Content-Type: application/json
+
+{
+    "currentPassword":"",
+    "newPassword":""
+}

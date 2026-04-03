@@ -9,3 +9,4 @@ function User(props){
         </div>
     )
 }
+export default User

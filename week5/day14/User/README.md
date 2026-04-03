@@ -1,3 +1,20 @@
+28/03/26
+
+
+userHook to change the state and rearender  2nds value
+
+
+# useeffect hook
+  - sideefffect demo(outside of react)
+   import userEffect
+    -api call
+    -Dom implemntation
+    File Opertions
+
+
+    primitive and reference diff how state changes
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

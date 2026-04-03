@@ -6,16 +6,20 @@ import {useNavigate} from 'react-router'
 function CreateEmp() {
     const [loading,setLoading] = useState(false);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
+
     const {register,HandleSubmit,formState:{errors}}=useForm()
 
     //form submit
-    const onFormSubmit=(newEmpObj)=>{
-        console.log(newEmpObj)
+    const onFormSubmit=async (newEmpObj)=>{
+        // console.log(newEmpObj)
         try{
             setLoading(true)
             //make http request
             let res = await fetch('http://localhost:6000/emp-api/employees',{
-                
+                method:"POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify(newEmpObj)
             })
         }
     }

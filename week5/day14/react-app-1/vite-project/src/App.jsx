@@ -5,6 +5,7 @@ import Product from './components/Product.jsx'
 function App(){
   //create
   //state
+  console.log("App rendered") // so that we donot accecpt unnessary rerendering
   // let Username='sachin'
   // let person={
   //   pno:100,

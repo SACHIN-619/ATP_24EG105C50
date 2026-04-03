@@ -1,52 +1,64 @@
-import { useState } from 'react'
-import {userForm} from 'react-hook-form'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-function UserFormDemo(){
-    const {users,SetUsers}=useState([])
+function UserFromDemo() {
+  const [users, setUsers] = useState([]);
+  const { register, handleSubmit } = useForm();
 
-     const{
-        register,
-        handleSubmit,
-        formState:{errors},
-     }=userForm()
+  //on form submit
+  const onFormSubmit = (newUserObj) => {
+    console.log(newUserObj);
+    setUsers([...users, newUserObj]);
+  };
 
-    
-//on Form submit
-const onFormSubmit=(newUser)
-    return(
-        <div >
-            <h1 className="text-5xl">
-                Create User Form
-            </h1>
-            <form className='bg-yellow-600'>
-                <div>
-                    <label htmlFor='firstname'>FirstName</label>
-                   <input type="text" {...register("username")} className=""/>
-                    <label htmlFor='email'>email</label>
-                   <input type="text" {...register("email")} className=""/>
-                    <label htmlFor='dateOfBirth'>dateOfBirth</label>
-                   <input type="date" {...register("dateOfBirth")} className=""/>
-                   <button type="submit" className="bg-pink-500">Add User</button>
-            </div>
-            </form>
+  console.log(users);
 
-            <div>
-                <h1>List of Users</h1>
-                <table border="none" className="border-collapse:collapse bg-red-400">
-                    <tr>
-                        <th>firstName</th>
-                        <th>email</th>
-                        <th>dateOfBirth</th>
-                    </tr>
-                    <tr>
-                        users.map(user,index)={
-                                 return(index)=>{
-                                          <tr> </tr>   
-                                 }
-                        }
-                    </tr>
-                </table>
-            </div>
+  return (
+    <div className="mt-5">
+      {/* create User form */}
+      <h1 className="text-5xl text-center">Create User</h1>
+      <form className="max-w-md mx-auto mt-10" onSubmit={handleSubmit(onFormSubmit)}>
+        {/* First name */}
+        <div className="mb-3">
+          <label htmlFor="fn">FirstName</label>
+          <input type="text" {...register("firstName")} id="fn" className="w-full p-3 border" />
         </div>
-    )
+        {/* Email*/}
+        <div className="mb-3">
+          <label htmlFor="email">Email</label>
+          <input type="email" {...register("email")} id="email" className="w-full p-3 border" />
+        </div>
+        {/* First name */}
+        <div className="mb-3">
+          <label htmlFor="fn">Date of Birth</label>
+          <input type="date" {...register("dateOfBirth")} id="fn" className="w-full p-3 border" />
+        </div>
+        <button type="submit" className="bg-sky-300 p-3">
+          Add New User
+        </button>
+      </form>
+
+      {/* Table to dusplay List of Users */}
+      <table className="mt-5 border mx-auto text-3xl">
+        <thead>
+          <tr>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date of Birth</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((userObj, index) => (
+            <tr key={index}>
+              <td>{userObj.firstName}</td>
+              <td>{userObj.email}</td>
+              <td>{userObj.dateOfBirth}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
+
+export default UserFromDemo;
