@@ -1,1 +1,1 @@
-one day 01-0426 we have done advanced=ment in fullstack app with staemgmt
+one day 01-0426 we have done advancement in fullstack app with staemgmt
