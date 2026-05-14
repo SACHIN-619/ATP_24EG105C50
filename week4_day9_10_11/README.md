@@ -59,7 +59,15 @@ The frontend section focuses on the building blocks of the web: HTML, CSS, and b
 - Preparatory concepts for upcoming libraries and frameworks like **ReactJS**, **Angular**, **Vue**, and **Next.js**.
 
 ### How to Run the Frontend
-You can open any of the HTML files (e.g., `index.html`, `index2.html`, `index3.html`) directly in your web browser or use a tool like VS Code's **Live Server** extension to view them dynamically.
+You can open any of the newly organized HTML files (e.g., `01-basic-elements.html`, `02-nested-lists.html`, `03-article-profile.html`) directly in your web browser or use a tool like VS Code's **Live Server** extension to view them dynamically.
+
+> [!NOTE]
+> **Recent File Reorganization:** To improve consistency, some files have been renamed:
+> - `index.html`, `index2.html`, `index3.html` were renamed to `01-basic-elements.html`, `02-nested-lists.html`, `03-article-profile.html` respectively.
+> - Typos in folder names like `assignemnt7` were corrected to `assignment7`.
+> - An empty `assignment8` file was converted to a proper directory `assignment8`.
+> - `req.http` in the backend was renamed to `general-req.http` to match other HTTP files.
+> - `readme.md` and `README.MD` extensions were normalized to `README.md`.
 
 ---
 
