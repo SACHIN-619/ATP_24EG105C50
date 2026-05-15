@@ -1,1 +1,5 @@
-added readme file in each day kndly refer it 
+# added readme file in each day kindly refer it
+ - mentioned everything in details
+ - topic explaination 
+ - questions
+ 
