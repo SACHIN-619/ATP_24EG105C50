@@ -19,7 +19,7 @@ class Student{
 
     constructor(sno,name,email){
         //initialize the object
-        this.#sno=sno;  //W
+        this.#sno=sno;  //privte
         this.name=name;
         this.email=email;
 

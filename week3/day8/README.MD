@@ -1,10 +1,10 @@
     
 
 ### uer Authentication (Login)
-  -Submit credentials and get token
+  - Submit credentials and get token
 
-   -public routes  (By anyone)
-   -protected routes ( By authenticated users only)
+   - public routes  (By anyone)
+   - protected routes ( By authenticated users only)
   what is RSA,when to use Hmac key e jwt pagewebsites
     npm i jsonwebtoken
 --------------------------------------------

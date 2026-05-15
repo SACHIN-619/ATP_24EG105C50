@@ -3,7 +3,8 @@
 class Person{}
 class Student extends Person{}
 
-//Cat has a engine(composition)--has a relationship
+//Car has a engine(composition)--has a relationship
 
 class Engine(){
+    console.log("engine of a car")
 }
