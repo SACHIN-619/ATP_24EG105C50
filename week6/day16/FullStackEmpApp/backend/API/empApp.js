@@ -33,9 +33,18 @@ empRoute.put("/employees/:id", async (req, res) => {
 
 //Delete emp by id
 empRoute.delete("/employees/:id", async (req, res) => {
-  let deletedEmp = await EmpModel.findByIdAndDelete(req.params.id);
-  if (!deletedEmp) {
-    return res.status(404).json({ message: "emp not found" });
+  try {
+    const id = req.params.id;
+    console.log("DELETE request received for ID:", id);
+    let deletedEmp = await EmpModel.findByIdAndDelete(id);
+    if (!deletedEmp) {
+      console.log("Employee not found for ID:", id);
+      return res.status(404).json({ message: "Employee not found in database" });
+    }
+    console.log("Successfully deleted employee:", id);
+    res.status(200).json({ message: "employee deleted", payload: deletedEmp });
+  } catch (err) {
+    console.error("Critical error in DELETE route:", err.message);
+    res.status(500).json({ message: "Server error during deletion", reason: err.message });
   }
-  res.status(200).json({ message: "employee deleted", payload: deletedEmp });
 });

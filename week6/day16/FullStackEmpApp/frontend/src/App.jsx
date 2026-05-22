@@ -2,9 +2,9 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import RootLayout from "./components/RootLayout";
 import Home from "./components/Home";
 import CreateEmp from "./components/CreateEmp";
-import Employee from "./components/Employee.jsx"
 import ListOfEmps from "./components/ListOfEmps";
-import EditEmployee from "./components/EditEmployee.jsx"
+import Employee from './components/Employee'
+import EditEmployee from './components/EditEmployee'
 
 function App() {
   const routerObj = createBrowserRouter([
@@ -15,8 +15,9 @@ function App() {
         { path: "", element: <Home /> },
         { path: "create-emp", element: <CreateEmp /> },
         { path: "list", element: <ListOfEmps /> },
-        {path: "employee", element:<Employee />},
-        {path:"edit-emp",element:<EditEmployee/>}
+        { path:"employee",element:<Employee />},
+        { path:"edit-emp",element:<EditEmployee />}
+
       ],
     },
   ]);
