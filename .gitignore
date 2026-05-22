@@ -1,4 +1,8 @@
-# ignore node_modules:
+# Ignore all node_modules everywhere in the repo
+**/node_modules/
 node_modules/
+
+# Ignore environment variables
 .env
+.env.local
 .env.example
