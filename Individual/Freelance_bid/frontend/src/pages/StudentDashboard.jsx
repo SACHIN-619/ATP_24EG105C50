@@ -4,7 +4,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 const BID_STATUS = {
-  pending:  { label: 'Pending',  bg: '#FFF7ED', color: '#C2410C' },
+  pending: { label: 'Pending', bg: '#FFF7ED', color: '#C2410C' },
   accepted: { label: 'Accepted', bg: '#ECFDF5', color: '#059669' },
   rejected: { label: 'Rejected', bg: '#FEF2F2', color: '#DC2626' },
 };
@@ -46,10 +46,10 @@ export default function StudentDashboard() {
         {/* Stats */}
         <div className="fade-up fade-up-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
           {[
-            { label: 'Total Bids',  value: stats.all,      icon: '◈', col: 'var(--accent)' },
-            { label: 'Pending',     value: stats.pending,  icon: '◐', col: '#C2410C' },
-            { label: 'Accepted',    value: stats.accepted, icon: '◉', col: '#059669' },
-            { label: 'Rejected',    value: stats.rejected, icon: '✕', col: '#DC2626' },
+            { label: 'Total Bids', value: stats.all, icon: '◈', col: 'var(--accent)' },
+            { label: 'Pending', value: stats.pending, icon: '◐', col: '#C2410C' },
+            { label: 'Accepted', value: stats.accepted, icon: '◉', col: '#059669' },
+            { label: 'Rejected', value: stats.rejected, icon: '✕', col: '#DC2626' },
           ].map(({ label, value, icon, col }) => (
             <div key={label} style={{ background: '#fff', borderRadius: 14, padding: '20px 24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
               <div style={{ fontSize: 18, marginBottom: 8, color: col }}>{icon}</div>
@@ -77,7 +77,7 @@ export default function StudentDashboard() {
         <div className="fade-up fade-up-3">
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {[1,2,3].map(i => <div key={i} style={{ background: '#fff', borderRadius: 14, height: 88, border: '1px solid var(--border)' }} />)}
+              {[1, 2, 3].map(i => <div key={i} style={{ background: '#fff', borderRadius: 14, height: 88, border: '1px solid var(--border)' }} />)}
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '64px 24px', background: '#fff', borderRadius: 16, border: '1px solid var(--border)' }}>
@@ -114,6 +114,19 @@ export default function StudentDashboard() {
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontFamily: '"Playfair Display", serif', fontSize: 20, fontWeight: 600, color: 'var(--accent)' }}>₹{bid.amount?.toLocaleString()}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{bid.duration}</div>
+                     
+                      {bid.status === 'accepted' && (
+                        <button
+                          onClick={e => { e.stopPropagation(); navigate(`/projects/${bid.projectId?._id}/milestones`); }}
+                          style={{
+                            marginTop: 8, padding: '4px 12px',
+                            background: 'var(--accent-light)', color: 'var(--accent)',
+                            border: '1px solid var(--accent)', borderRadius: 6,
+                            fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                            fontFamily: '"DM Sans", sans-serif',
+                          }}
+                        >🏁 View Milestones</button>
+                      )}
                     </div>
                   </div>
                 );

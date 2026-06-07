@@ -23,6 +23,15 @@ export default function EditProfile() {
     });
   }, [user]);
 
+  // Add this useEffect inside EditProfile, after the existing useEffect:
+useEffect(() => {
+  if (window.location.hash === '#portfolio') {
+    setTimeout(() => {
+      document.getElementById('portfolio-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+  }
+}, []);
+
   const saveProfile = async (e) => {
     e.preventDefault();
     setLoading(true); setError('');
@@ -105,7 +114,7 @@ export default function EditProfile() {
 
           {/* Portfolio section — students only */}
           {user?.role === 'student' && (
-            <Section title="Portfolio" subtitle="Showcase your best work to win more projects">
+          <Section id="portfolio-section" title="Portfolio" subtitle="Showcase your best work to win more projects">
               {/* Existing items */}
               {portfolio.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
@@ -196,9 +205,9 @@ export default function EditProfile() {
   );
 }
 
-function Section({ title, subtitle, children }) {
+function Section({ id, title, subtitle, children }) {
   return (
-    <div className="fade-up" style={{ background: '#fff', borderRadius: 14, padding: '28px 32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', marginBottom: 20 }}>
+    <div id={id} className="fade-up" style={{ background: '#fff', borderRadius: 14, padding: '28px 32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', marginBottom: 20 }}>
       <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--surface-3)' }}>
         <h2 style={{ fontFamily: '"Playfair Display", serif', fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px' }}>{title}</h2>
         <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, fontWeight: 300 }}>{subtitle}</p>

@@ -4,9 +4,9 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 const STATUS = {
-  open:       { label: 'Open',        bg: '#ECFDF5', color: '#059669' },
+  open: { label: 'Open', bg: '#ECFDF5', color: '#059669' },
   inProgress: { label: 'In Progress', bg: '#FFF7ED', color: '#C2410C' },
-  completed:  { label: 'Completed',   bg: '#F3F4F6', color: '#6B7280' },
+  completed: { label: 'Completed', bg: '#F3F4F6', color: '#6B7280' },
 };
 
 export default function ClientDashboard() {
@@ -60,10 +60,10 @@ export default function ClientDashboard() {
         {/* Stat cards */}
         <div className="fade-up fade-up-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
           {[
-            { label: 'Total Projects', value: counts.all,        icon: '◈' },
-            { label: 'Open',           value: counts.open,       icon: '◯' },
-            { label: 'In Progress',    value: counts.inProgress, icon: '◐' },
-            { label: 'Completed',      value: counts.completed,  icon: '◉' },
+            { label: 'Total Projects', value: counts.all, icon: '◈' },
+            { label: 'Open', value: counts.open, icon: '◯' },
+            { label: 'In Progress', value: counts.inProgress, icon: '◐' },
+            { label: 'Completed', value: counts.completed, icon: '◉' },
           ].map(({ label, value, icon }) => (
             <div key={label} style={{
               background: '#fff', borderRadius: 14, padding: '20px 24px',
@@ -137,6 +137,19 @@ export default function ClientDashboard() {
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ fontFamily: '"Playfair Display", serif', fontSize: 20, fontWeight: 600, color: 'var(--accent)' }}>₹{p.budget.toLocaleString()}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>Due {new Date(p.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+                   
+                    {(p.status === 'inProgress' || p.status === 'completed') && (
+                      <button
+                        onClick={e => { e.stopPropagation(); navigate(`/projects/${p._id}/milestones`); }}
+                        style={{
+                          marginTop: 8, padding: '4px 12px',
+                          background: 'var(--accent-light)', color: 'var(--accent)',
+                          border: '1px solid var(--accent)', borderRadius: 6,
+                          fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                          fontFamily: '"DM Sans", sans-serif',
+                        }}
+                      >🏁 Milestones</button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -160,7 +173,7 @@ function StatusBadge({ status }) {
 function LoadingSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {[1,2,3].map(i => (
+      {[1, 2, 3].map(i => (
         <div key={i} style={{ background: '#fff', borderRadius: 14, padding: '20px 24px', border: '1px solid var(--border)', height: 88 }}>
           <div style={{ height: 14, width: '35%', background: 'var(--surface-3)', borderRadius: 6, marginBottom: 10 }} />
           <div style={{ height: 11, width: '60%', background: 'var(--surface-3)', borderRadius: 6 }} />

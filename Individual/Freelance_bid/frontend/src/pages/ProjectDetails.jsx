@@ -279,6 +279,25 @@ export default function ProjectDetails() {
               </div>
             </div>
 
+            {/* Milestone tracker link - show when project is inProgress or completed */}
+            {(project.status === 'inProgress' || project.status === 'completed') && (
+              <button onClick={() => navigate(`/projects/${id}/milestones`)} style={{
+                width: '100%', padding: '12px',
+                background: '#fff',
+                color: 'var(--accent)',
+                border: '1px solid var(--accent)',
+                borderRadius: 10, fontSize: 14, fontWeight: 600,
+                cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                transition: 'all 0.15s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-light)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}
+              >
+                🏁 View Milestone Tracker
+              </button>
+            )}
+
             {/* Student: sidebar CTA */}
             {user?.role === 'student' && project.status === 'open' && !myBid && (
               <button onClick={() => navigate(`/projects/${id}/bid`)} style={{
@@ -288,6 +307,8 @@ export default function ProjectDetails() {
                 boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
               }}>Submit Your Proposal →</button>
             )}
+
+            
           </div>
 
         </div>

@@ -10,8 +10,9 @@ import ProjectsList     from './pages/ProjectsList';
 import ProjectDetails   from './pages/ProjectDetails';
 import ProjectForm      from './pages/ProjectForm';
 import BidForm          from './pages/BidForm';
-import Profile          from './pages/Profile';        // ← V2
-import EditProfile      from './pages/EditProfile';    // ← V2
+import Profile          from './pages/Profile';        //  V2
+import EditProfile      from './pages/EditProfile';    //  V2
+import MilestoneTracker from './pages/MilestoneTracker'; // v3
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/projects/:id/bid"        element={<BidForm />} />
           <Route path="/profile/:id"             element={<Profile />} />
           <Route path="/profile/edit"            element={<EditProfile />} />
+          <Route path="/projects/:id/milestones" element={<MilestoneTracker />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

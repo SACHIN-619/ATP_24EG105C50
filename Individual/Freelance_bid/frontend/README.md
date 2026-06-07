@@ -24,3 +24,12 @@ cd frontend
 npm install react-router-dom axios
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
+
+
+
+
+# Tasks  ( V3 )
+ 
+ # Task 2 — Frontend (1 hr): Create MilestoneTracker.jsx, add route to App.jsx, add the Milestones button to ProjectDetails sidebar, add quick-link chips to both dashboards
+
+     MilestoneTracker.jsx — vertical timeline, segmented progress bar, payment stats, add form, inline approve/reject with notes
