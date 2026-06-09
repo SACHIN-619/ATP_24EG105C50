@@ -1,73 +1,80 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import FilterBar from '../components/FilterBar';
 
 export default function ProjectsList() {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
+  const [loading,  setLoading]  = useState(true);
+  const [total,    setTotal]    = useState(0);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const params = new URLSearchParams({ status: 'open' });
-    if (tagFilter) params.append('tag', tagFilter);
-    api.get(`/projects?${params}`).then(r => setProjects(r.data)).finally(() => setLoading(false));
-  }, [tagFilter]);
+  const fetchProjects = useCallback(async (filters = {}) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filters.status)    params.append('status',    filters.status);
+      if (filters.tag)       params.append('tag',       filters.tag);
+      if (filters.budgetMin) params.append('budgetMin', filters.budgetMin);
+      if (filters.budgetMax) params.append('budgetMax', filters.budgetMax);
 
-  const allTags = [...new Set(projects.flatMap(p => p.tags))];
-  const filtered = search
-    ? projects.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.tags.some(t => t.toLowerCase().includes(search.toLowerCase())))
-    : projects;
+      const { data } = await api.get(`/projects?${params}`);
+
+      // Client-side search (title/description match)
+      const search = filters.search?.toLowerCase() || '';
+      const filtered = search
+        ? data.filter(p =>
+            p.title.toLowerCase().includes(search) ||
+            p.description.toLowerCase().includes(search) ||
+            p.tags.some(t => t.toLowerCase().includes(search))
+          )
+        : data;
+
+      setProjects(filtered);
+      setTotal(filtered.length);
+    } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { fetchProjects({ status: 'open' }); }, []);
 
   return (
     <div style={{ background: 'var(--surface-2)', minHeight: '100vh' }}>
       {/* Page header */}
-      <div style={{ background: '#fff', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px' }}>
+      <div style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 24px' }}>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 6 }}>Marketplace</p>
-          <h1 style={{ fontFamily: '"Playfair Display", serif', fontSize: 32, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 20 }}>
-            Open Projects
+          <h1 style={{ fontFamily: '"Playfair Display", serif', fontSize: 32, fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+            Find Projects
           </h1>
-          {/* Search + Filter */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: 240 }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 16 }}>🔍</span>
-              <input type="text" placeholder="Search projects or skills..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid var(--border)', borderRadius: 9, fontSize: 14, fontFamily: '"DM Sans", sans-serif', outline: 'none', background: '#fff', color: 'var(--text-primary)' }}
-              />
-            </div>
-            <select value={tagFilter} onChange={e => setTagFilter(e.target.value)}
-              style={{ padding: '10px 14px', border: '1px solid var(--border)', borderRadius: 9, fontSize: 13, fontFamily: '"DM Sans", sans-serif', outline: 'none', background: '#fff', color: 'var(--text-primary)', cursor: 'pointer' }}>
-              <option value="">All Skills</option>
-              {allTags.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 24px' }}>
+        <FilterBar onFilter={fetchProjects} />
+
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
-            {[1,2,3,4,5,6].map(i => <div key={i} style={{ background: '#fff', borderRadius: 14, height: 180, border: '1px solid var(--border)' }} />)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} style={{ background: 'var(--surface)', borderRadius: 14, height: 200, border: '1px solid var(--border)', opacity: 0.5 }} />
+            ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : projects.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 24px' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🪹</div>
             <h3 style={{ fontFamily: '"Playfair Display", serif', fontSize: 24, color: 'var(--text-primary)', marginBottom: 8 }}>No projects found</h3>
-            <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontWeight: 300 }}>Try adjusting your search or filters.</p>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontWeight: 300 }}>Try adjusting your filters or search terms.</p>
           </div>
         ) : (
           <>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20, fontWeight: 500 }}>{filtered.length} project{filtered.length !== 1 ? 's' : ''} found</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
-              {filtered.map((p, i) => (
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 18, fontWeight: 500 }}>
+              {total} project{total !== 1 ? 's' : ''} found
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+              {projects.map((p, i) => (
                 <div key={p._id} className={`fade-up fade-up-${(i % 4) + 1}`}
                   onClick={() => navigate(`/projects/${p._id}`)}
                   style={{
-                    background: '#fff', borderRadius: 14, padding: 24,
+                    background: 'var(--surface)', borderRadius: 14, padding: 24,
                     border: '1px solid var(--border)', cursor: 'pointer',
                     display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                     transition: 'all 0.15s', minHeight: 200,

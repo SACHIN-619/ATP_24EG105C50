@@ -1,9 +1,11 @@
 import express from 'express';
 import Milestone from '../models/Milestone.js';
-import Project   from '../models/Project.js';
-import Bid       from '../models/Bid.js';
-import { protect }   from '../middleware/auth.js';
+import Bid from '../models/Bid.js';
+import { protect } from '../middleware/auth.js';
 import { roleCheck } from '../middleware/roleCheck.js';
+import { createNotification } from '../utils/notify.js';
+import Project from '../models/Project.js';
+
 
 const router = express.Router();
 
@@ -61,7 +63,7 @@ router.put('/:milestoneId/complete', protect, roleCheck('student'), async (req, 
       return res.status(400).json({ message: 'Only pending milestones can be marked complete' });
 
     milestone.status = 'completed';
-    milestone.note   = req.body.note || milestone.note;
+    milestone.note = req.body.note || milestone.note;
     await milestone.save();
     res.json(milestone);
   } catch (err) {
@@ -82,6 +84,16 @@ router.put('/:milestoneId/approve', protect, roleCheck('client'), async (req, re
 
     milestone.status = 'approved';
     await milestone.save();
+    const proj = await Project.findById(milestone.projectId);
+    const acceptedBid = await Bid.findOne({ projectId: milestone.projectId, status: 'accepted' });
+    if (acceptedBid) {
+      await createNotification(
+        acceptedBid.studentId,
+        'milestone_approved',
+        `✅ Milestone "${milestone.title}" approved! ₹${milestone.amount} virtually released.`,
+        `/projects/${milestone.projectId}/milestones`
+      );
+    }
     res.json(milestone);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -100,8 +112,17 @@ router.put('/:milestoneId/reject', protect, roleCheck('client'), async (req, res
       return res.status(400).json({ message: 'Can only reject a completed milestone' });
 
     milestone.status = 'pending';  // sent back for rework
-    milestone.note   = req.body.note || '';
+    milestone.note = req.body.note || '';
     await milestone.save();
+    const acceptedBid = await Bid.findOne({ projectId: milestone.projectId, status: 'accepted' });
+    if (acceptedBid) {
+      await createNotification(
+        acceptedBid.studentId,
+        'milestone_rejected',
+        `⚠️ Milestone "${milestone.title}" was sent back for rework.`,
+        `/projects/${milestone.projectId}/milestones`
+      );
+    }
     res.json(milestone);
   } catch (err) {
     res.status(500).json({ message: err.message });

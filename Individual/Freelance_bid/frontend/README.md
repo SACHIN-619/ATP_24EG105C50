@@ -110,3 +110,13 @@ actionNote state uses { id, value } — the id identifies which card has the not
 
 # components/ReviewModal.jsx
     Rendered at the root level of ProjectDetails (not inside the bids loop) so it overlays the entire page. The overlay div's onClick closes the modal when you click outside — e.target === e.currentTarget ensures it only fires on the backdrop, not when clicking inside the modal content.
+# Tasks  (V4 )
+   1. Create ThemeContext.jsx, update main.jsx
+2. Add dark mode CSS tokens to index.css
+3. Create NotificationBell.jsx, FilterBar.jsx, NotificationsPage.jsx
+4. Update Navbar.jsx with bell + theme toggle
+5. Update ProjectsList.jsx with FilterBar
+6. Add /notifications route to App.jsx
+
+
+-  ThemeContext (dark mode, persists in localStorage), NotificationBell (dropdown with live polling every 30s, unread badge), FilterBar (search + tag + budget range + status, quick chip shortcuts), NotificationsPage (full inbox view), updated ProjectsList with full filter support, updated Navbar with bell + dark mode toggle

@@ -37,7 +37,9 @@ This opens a persistent connection to MongoDB. It runs once when the server star
 # middleware/auth.js — JWT Guard
 Middleware is a function that runs between receiving a request and executing the route handler. This one:
 Request arrives → auth.js checks token → if valid, attach user to req → route handler runs
-                                        → if invalid, send 401, stop here
+
+
+ → if invalid, send 401, stop here
 It reads the Authorization header, which the frontend sends as Bearer eyJhbGci.... It calls jwt.verify() which cryptographically checks the token against your JWT_SECRET. If valid, it fetches the user from the database and attaches them to req.user so every route handler can access who is making the request.
 
 # middleware/roleCheck.js — Role Guard
@@ -98,3 +100,7 @@ After a review is created, it immediately recomputes the student's average ratin
         Only the project owner (verified by comparing clientId) can approve or reject.
         Approve sets status to approved (virtual payment released). Reject sets it back to pending (rework requested).
         Budget guard: sum of all existing milestone amounts + new amount must not exceed project.budget.
+
+# Tasks  (V4 )
+    Task 1 — Backend (30 min): Create Notification.js, utils/notify.js, routes/notifications.js, update server.js, add createNotification calls to projects.js, milestones.js, users.js
+- ThemeContext (dark mode, persists in localStorage), NotificationBell (dropdown with live polling every 30s, unread badge), FilterBar (search + tag + budget range + status, quick chip shortcuts), NotificationsPage (full inbox view), updated ProjectsList with full filter support, updated Navbar with bell + dark mode toggle

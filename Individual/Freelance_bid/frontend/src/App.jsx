@@ -1,18 +1,19 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import Navbar           from './components/Navbar';
-import Home             from './pages/Home';
-import Login            from './pages/Login';
-import Signup           from './pages/Signup';
-import ClientDashboard  from './pages/ClientDashboard';
-import StudentDashboard from './pages/StudentDashboard';
-import ProjectsList     from './pages/ProjectsList';
-import ProjectDetails   from './pages/ProjectDetails';
-import ProjectForm      from './pages/ProjectForm';
-import BidForm          from './pages/BidForm';
-import Profile          from './pages/Profile';        //  V2
-import EditProfile      from './pages/EditProfile';    //  V2
-import MilestoneTracker from './pages/MilestoneTracker'; // v3
+import { AuthProvider }     from './context/AuthContext';
+import Navbar               from './components/Navbar';
+import Home                 from './pages/Home';
+import Login                from './pages/Login';
+import Signup               from './pages/Signup';
+import ClientDashboard      from './pages/ClientDashboard';
+import StudentDashboard     from './pages/StudentDashboard';
+import ProjectsList         from './pages/ProjectsList';
+import ProjectDetails       from './pages/ProjectDetails';
+import ProjectForm          from './pages/ProjectForm';
+import BidForm              from './pages/BidForm';
+import Profile              from './pages/Profile';
+import EditProfile          from './pages/EditProfile';
+import MilestoneTracker     from './pages/MilestoneTracker';
+import NotificationsPage    from './pages/NotificationsPage';
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/profile/:id"             element={<Profile />} />
           <Route path="/profile/edit"            element={<EditProfile />} />
           <Route path="/projects/:id/milestones" element={<MilestoneTracker />} />
+          <Route path="/notifications"           element={<NotificationsPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
