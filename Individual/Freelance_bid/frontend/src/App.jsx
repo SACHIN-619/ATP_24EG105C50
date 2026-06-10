@@ -14,6 +14,7 @@ import Profile              from './pages/Profile';
 import EditProfile          from './pages/EditProfile';
 import MilestoneTracker     from './pages/MilestoneTracker';
 import NotificationsPage    from './pages/NotificationsPage';
+import SkillQuiz from './pages/SkillQuiz';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/profile/edit"            element={<EditProfile />} />
           <Route path="/projects/:id/milestones" element={<MilestoneTracker />} />
           <Route path="/notifications"           element={<NotificationsPage />} />
+          <Route path="/quiz/:skill"             element={<SkillQuiz />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
