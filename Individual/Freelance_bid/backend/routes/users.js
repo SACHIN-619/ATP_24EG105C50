@@ -150,4 +150,44 @@ router.get('/quiz/:skill', protect, (req, res) => {
   if (!quiz) return res.status(404).json({ message: 'No quiz for this skill' });
   res.json(quiz.map(({ q, options }) => ({ q, options })));  // strip answers
 });
+
+// GET /api/leaderboard
+router.get('/leaderboard', async (req, res) => {
+  try {
+    // Students with at least one accepted bid
+    const students = await User.find({ role: 'student' })
+      .select('name skills rating verifiedSkills portfolio')
+      .sort('-rating')
+      .limit(20);
+
+    // For each student, count completed projects and sum approved milestones
+    const Milestone = (await import('../models/Milestone.js')).default;
+    const Bid       = (await import('../models/Bid.js')).default;
+
+    const enriched = await Promise.all(students.map(async (s) => {
+      const acceptedBids = await Bid.find({ studentId: s._id, status: 'accepted' });
+      const projectIds   = acceptedBids.map(b => b.projectId);
+      const earned       = await Milestone.aggregate([
+        { $match: { projectId: { $in: projectIds }, status: 'approved' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+      return {
+        _id:            s._id,
+        name:           s.name,
+        rating:         s.rating,
+        skills:         s.skills,
+        verifiedSkills: s.verifiedSkills || [],
+        projectsDone:   acceptedBids.length,
+        earned:         earned[0]?.total || 0,
+        badges:         (s.verifiedSkills || []).length,
+      };
+    }));
+
+    // Sort by earned (virtual), then rating
+    enriched.sort((a, b) => b.earned - a.earned || b.rating - a.rating);
+    res.json(enriched);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 export default router;

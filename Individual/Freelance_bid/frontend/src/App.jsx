@@ -16,6 +16,7 @@ import MilestoneTracker     from './pages/MilestoneTracker';
 import NotificationsPage    from './pages/NotificationsPage';
 import SkillQuiz from './pages/SkillQuiz';
 import Analytics from './pages/Analytics';
+import Leaderboard from './pages/Leaderboard';
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/notifications"           element={<NotificationsPage />} />
           <Route path="/quiz/:skill"             element={<SkillQuiz />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

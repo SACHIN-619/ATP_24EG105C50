@@ -168,14 +168,17 @@ export default function Navbar() {
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <NavLink to="/projects" active={isActive('/projects')}>Browse</NavLink>
-
+         
+         {/* Public Leaderboard Link */}
+          <NavLink to="/leaderboard" active={isActive('/leaderboard')}>🏆 Leaderboard</NavLink>
+          
           {user && (
             <NavLink
               to={user.role === 'client' ? '/client/dashboard' : '/student/dashboard'}
               active={isActive('/client/dashboard') || isActive('/student/dashboard')}
             >Dashboard</NavLink>
           )}
-
+         
           {/* Dark mode toggle */}
           <button onClick={toggle} title={dark ? 'Light mode' : 'Dark mode'} style={{
             background: 'none', border: '1px solid var(--border)', cursor: 'pointer',
