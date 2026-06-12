@@ -5,11 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import ReviewModal from '../components/ReviewModal';
 
 export default function ProjectDetails() {
-  const { id }       = useParams();
-  const { user }     = useAuth();
-  const navigate     = useNavigate();
-  const [data, setData]           = useState(null);
-  const [loading, setLoading]     = useState(true);
+  const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [reviewModal, setReviewModal] = useState(null);
 
   const load = () =>
@@ -46,14 +46,28 @@ export default function ProjectDetails() {
   );
 
   const { project, bids } = data;
+
+  /* ── Skill Matching Logic ── */
+  const matchScore = (() => {
+    if (!user || user.role !== 'student' || !user.skills?.length) return null;
+    const projectTags = project.tags.map(t => t.toLowerCase());
+    const userSkills = user.skills.map(s => s.toLowerCase());
+    const matched = userSkills.filter(s => projectTags.some(t => t.includes(s) || s.includes(t)));
+    return {
+      score: Math.round((matched.length / projectTags.length) * 100),
+      matched,
+      missing: project.tags.filter(t => !userSkills.some(s => s.includes(t.toLowerCase()) || t.toLowerCase().includes(s))),
+    };
+  })();
+
   const isOwner = user && String(project.clientId?._id) === user._id;
-  const myBid   = user?.role === 'student' && bids.find(b => String(b.studentId?._id) === user._id);
+  const myBid = user?.role === 'student' && bids.find(b => String(b.studentId?._id) === user._id);
   const acceptedBid = bids.find(b => b.status === 'accepted');
 
   const STATUS = {
-    open:       { label: 'Open for Bids', bg: '#ECFDF5', color: '#059669' },
-    inProgress: { label: 'In Progress',   bg: '#FFF7ED', color: '#C2410C' },
-    completed:  { label: 'Completed',     bg: '#F3F4F6', color: '#6B7280' },
+    open: { label: 'Open for Bids', bg: '#ECFDF5', color: '#059669' },
+    inProgress: { label: 'In Progress', bg: '#FFF7ED', color: '#C2410C' },
+    completed: { label: 'Completed', bg: '#F3F4F6', color: '#6B7280' },
   };
   const s = STATUS[project.status];
 
@@ -95,11 +109,49 @@ export default function ProjectDetails() {
                 ))}
               </div>
 
+              {/* Skill Match UI Component */}
+              {matchScore !== null && (
+                <div style={{
+                  marginTop: 16, padding: '14px 18px',
+                  background: matchScore.score >= 70 ? '#ECFDF5' : matchScore.score >= 40 ? '#FFF7ED' : '#FEF2F2',
+                  border: `1px solid ${matchScore.score >= 70 ? '#86EFAC' : matchScore.score >= 40 ? '#FED7AA' : '#FECACA'}`,
+                  borderRadius: 10,
+                  marginBottom: 20
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Your Skill Match
+                    </span>
+                    <span style={{
+                      fontSize: 18, fontWeight: 700, fontFamily: '"Playfair Display", serif',
+                      color: matchScore.score >= 70 ? '#059669' : matchScore.score >= 40 ? '#C2410C' : '#DC2626'
+                    }}>
+                      {matchScore.score}%
+                    </span>
+                  </div>
+                  <div style={{ height: 6, background: 'rgba(0,0,0,0.08)', borderRadius: 99, overflow: 'hidden', marginBottom: 10 }}>
+                    <div style={{
+                      height: '100%', borderRadius: 99, transition: 'width 0.4s',
+                      width: `${matchScore.score}%`,
+                      background: matchScore.score >= 70 ? '#10B981' : matchScore.score >= 40 ? '#F97316' : '#EF4444',
+                    }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    {matchScore.matched.map(s => (
+                      <span key={s} style={{ fontSize: 11, color: '#059669', fontWeight: 600 }}>✓ {s}</span>
+                    ))}
+                    {matchScore.missing.map(s => (
+                      <span key={s} style={{ fontSize: 11, color: '#DC2626', fontWeight: 500 }}>✗ {s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.8, fontWeight: 300 }}>
                 {project.description}
               </p>
 
-              {/* ── Mark as Completed button (shown once inside project header) ── */}
+              {/* ── Mark as Completed button ── */}
               {isOwner && project.status === 'inProgress' && acceptedBid && (
                 <button onClick={markComplete} style={{
                   marginTop: 20, padding: '9px 20px',
@@ -146,7 +198,7 @@ export default function ProjectDetails() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {bids.map(bid => {
                     const bs = {
-                      pending:  { bg: '#FFF7ED', col: '#C2410C' },
+                      pending: { bg: '#FFF7ED', col: '#C2410C' },
                       accepted: { bg: '#ECFDF5', col: '#059669' },
                       rejected: { bg: '#FEF2F2', col: '#DC2626' },
                     }[bid.status];
@@ -203,7 +255,7 @@ export default function ProjectDetails() {
                         {/* Action row */}
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
 
-                          {/* 1. Accept bid — client only, bid is pending, project is open */}
+                          {/* 1. Accept bid — client only */}
                           {isOwner && bid.status === 'pending' && project.status === 'open' && (
                             <button onClick={() => acceptBid(bid._id)} style={{
                               padding: '7px 18px', background: 'var(--accent)', color: '#fff',
@@ -212,7 +264,7 @@ export default function ProjectDetails() {
                             }}>Accept Proposal</button>
                           )}
 
-                          {/* 2. Leave review — client only, project completed, this bid was accepted */}
+                          {/* 2. Leave review — client only */}
                           {isOwner && project.status === 'completed' && bid.status === 'accepted' && (
                             <button onClick={() => setReviewModal({ studentId: bid.studentId._id, studentName: bid.studentId.name })} style={{
                               padding: '7px 16px', background: '#FFF7ED', color: '#C2410C',
@@ -222,7 +274,7 @@ export default function ProjectDetails() {
                             }}>⭐ Leave Review</button>
                           )}
 
-                          {/* 3. View profile — always visible */}
+                          {/* 3. View profile */}
                           <a
                             href={`/profile/${bid.studentId?._id}`}
                             onClick={e => e.stopPropagation()}
@@ -249,10 +301,10 @@ export default function ProjectDetails() {
                 Project Details
               </h3>
               {[
-                { label: 'Budget',    value: `₹${project.budget.toLocaleString()}` },
-                { label: 'Deadline',  value: new Date(project.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) },
+                { label: 'Budget', value: `₹${project.budget.toLocaleString()}` },
+                { label: 'Deadline', value: new Date(project.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) },
                 { label: 'Proposals', value: `${bids.length} received` },
-                { label: 'Posted',    value: new Date(project.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) },
+                { label: 'Posted', value: new Date(project.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) },
               ].map(({ label, value }) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--surface-3)' }}>
                   <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{label}</span>
@@ -279,7 +331,7 @@ export default function ProjectDetails() {
               </div>
             </div>
 
-            {/* Milestone tracker link - show when project is inProgress or completed */}
+            {/* Milestone tracker link */}
             {(project.status === 'inProgress' || project.status === 'completed') && (
               <button onClick={() => navigate(`/projects/${id}/milestones`)} style={{
                 width: '100%', padding: '12px',
@@ -308,9 +360,7 @@ export default function ProjectDetails() {
               }}>Submit Your Proposal →</button>
             )}
 
-            
           </div>
-
         </div>
       </div>
 
