@@ -22,12 +22,18 @@ export default function StudentDashboard() {
   }, [user]);
 
   const filtered = filter === 'all' ? bids : bids.filter(b => b.status === filter);
-  const stats = { all: bids.length, pending: bids.filter(b => b.status === 'pending').length, accepted: bids.filter(b => b.status === 'accepted').length, rejected: bids.filter(b => b.status === 'rejected').length };
+  const stats = { 
+    all: bids.length, 
+    pending: bids.filter(b => b.status === 'pending').length, 
+    accepted: bids.filter(b => b.status === 'accepted').length, 
+    rejected: bids.filter(b => b.status === 'rejected').length 
+  };
 
   return (
     <div style={{ background: 'var(--surface-2)', minHeight: '100vh' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px' }}>
 
+        {/* Dashboard Header */}
         <div className="fade-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36, flexWrap: 'wrap', gap: 16 }}>
           <div>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 6 }}>Student Dashboard</p>
@@ -35,16 +41,26 @@ export default function StudentDashboard() {
               Welcome back, {user?.name?.split(' ')[0]} 👋
             </h1>
           </div>
-          <button onClick={() => navigate('/projects')} style={{
-            padding: '11px 24px', background: 'var(--accent)', color: '#fff',
-            border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600,
-            cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
-            boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
-          }}>Browse Projects →</button>
+          
+          {/* Action Buttons Container */}
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+            <button onClick={() => navigate('/analytics')} style={{
+              padding: '11px 20px', background: 'var(--surface)', color: 'var(--text-primary)',
+              border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, fontWeight: 600,
+              cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
+            }}>📊 My Analytics</button>
+
+            <button onClick={() => navigate('/projects')} style={{
+              padding: '11px 24px', background: 'var(--accent)', color: '#fff',
+              border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600,
+              cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
+              boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+            }}>Browse Projects →</button>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="fade-up fade-up-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
+        {/* Stats Grid */}
+        <div className="fade-up fade-up-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 32 }}>
           {[
             { label: 'Total Bids', value: stats.all, icon: '◈', col: 'var(--accent)' },
             { label: 'Pending', value: stats.pending, icon: '◐', col: '#C2410C' },
@@ -59,7 +75,7 @@ export default function StudentDashboard() {
           ))}
         </div>
 
-        {/* Filter tabs */}
+        {/* Filter Tabs */}
         <div className="fade-up fade-up-2" style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#fff', borderRadius: 10, padding: 4, border: '1px solid var(--border)', width: 'fit-content' }}>
           {['all', 'pending', 'accepted', 'rejected'].map(key => (
             <button key={key} onClick={() => setFilter(key)} style={{
@@ -73,7 +89,7 @@ export default function StudentDashboard() {
           ))}
         </div>
 
-        {/* Bids list */}
+        {/* Bids List Context */}
         <div className="fade-up fade-up-3">
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -111,7 +127,8 @@ export default function StudentDashboard() {
                       </div>
                       <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bid.description}</p>
                     </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    
+                    <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                       <div style={{ fontFamily: '"Playfair Display", serif', fontSize: 20, fontWeight: 600, color: 'var(--accent)' }}>₹{bid.amount?.toLocaleString()}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{bid.duration}</div>
                      
