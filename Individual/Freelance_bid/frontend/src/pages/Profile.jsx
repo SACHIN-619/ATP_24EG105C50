@@ -144,7 +144,7 @@ export default function Profile() {
 
         {/* Tab content */}
         <div className="fade-up fade-up-2">
-          {tab === 'Overview'   && <OverviewTab  profile={profile} reviews={reviews} />}
+          {tab === 'Overview'   && <OverviewTab  profile={profile} reviews={reviews} isOwn={isOwn} />}
           {tab === 'Portfolio'  && <PortfolioTab portfolio={profile.portfolio || []} isOwn={isOwn} navigate={navigate} />}
           {tab === 'Reviews'    && <ReviewsTab   reviews={reviews} />}
         </div>
@@ -154,7 +154,9 @@ export default function Profile() {
 }
 
 /* ─── Overview Tab ─── */
-function OverviewTab({ profile, reviews }) {
+function OverviewTab({ profile, reviews, isOwn }) {
+  const navigate = useNavigate();
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start', paddingBottom: 48 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -167,17 +169,29 @@ function OverviewTab({ profile, reviews }) {
           )}
         </Card>
 
-        {/* Skills */}
+        {/* Skills Section with Badges and Quiz verification option */}
         {profile.role === 'student' && (
           <Card title="Skills">
             {profile.skills?.length > 0 ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {profile.skills.map(skill => (
-                  <span key={skill} style={{
-                    background: 'var(--accent-light)', color: 'var(--accent)',
-                    padding: '5px 14px', borderRadius: 8,
-                    fontSize: 13, fontWeight: 500,
-                  }}>{skill}</span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                {profile.skills?.map(skill => (
+                  <div key={skill} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{
+                      background: profile.verifiedSkills?.includes(skill) ? '#ECFDF5' : 'var(--accent-light)',
+                      color: profile.verifiedSkills?.includes(skill) ? '#059669' : 'var(--accent)',
+                      padding: '5px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                      border: `1px solid ${profile.verifiedSkills?.includes(skill) ? '#86EFAC' : 'transparent'}`,
+                    }}>
+                      {profile.verifiedSkills?.includes(skill) ? '⚡ ' : ''}{skill}
+                    </span>
+                    {isOwn && !profile.verifiedSkills?.includes(skill) && (
+                      <button onClick={() => navigate(`/quiz/${skill}`)} style={{
+                        background: 'none', border: '1px dashed var(--border)', borderRadius: 6,
+                        fontSize: 11, color: 'var(--text-muted)', padding: '3px 8px',
+                        cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
+                      }}>Verify →</button>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
