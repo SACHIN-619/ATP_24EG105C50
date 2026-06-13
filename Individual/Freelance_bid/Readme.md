@@ -1,65 +1,31 @@
-It is freelancer bid portal websites.
+# 🚀 Freelancer Bid Portal (MERN Stack)
 
-Techstacks:
-  - MERNSTACK
+A comprehensive Freelancer Bidding Portal built with the **MERN Stack** (MongoDB, Express, React, Node.js). This application enables clients to post projects with full budget control, allows students/freelancers to submit proposals and bids, tracks project lifecycles with dynamic milestones, and utilizes real-time style overrides via a centralized layout system.
 
-  # Step 1: Initialize Backend
+## 🔗 Live Deployments
+* 💻 **Frontend Client (Vercel):** [https://freelancebid.vercel.app/](https://freelancebid.vercel.app/)
+* ⚙️ **Backend Service (Render API):** [https://freelance-bid.onrender.com/](https://freelance-bid.onrender.com/)
 
-npm init -y
-npm install express mongoose cors dotenv
-npm i express dotenv mongoose cookie-parser cors jsonwebtoken bcryptjs
-npm install nodemon
+---
 
-# step 2: Basic express server : 
+## 🏗️ Architecture & Monorepo Structure
 
-- backend/
- ├── models/
- ├── routes/
- ├── controllers/
- ├── middleware/
- ├── config/
- └── server.js
- 
-
- import Login from "./pages/Login";
-6  |  import Signup from "./pages/Signup";
-7  |  import ClientDashboard from "./pages/ClientDashboard";
-   |                               
-8  |  import StudentDashboard from "./pages/StudentDashboard";
-9  |  import ProjectsList from "./pages/ProjectsList";
-
-
-
-# UX flows (v3): 
- - Client adds milestones → Student marks done (with note) →     Client approves (virtual payment released) or rejects (sent back for rework)
-
-
-
-# Every Package Explained
- # Backend packages
-    PackageWhy it's usedexpressWeb framework. Handles HTTP requests, routing, middleware chaining. Without it you'd write raw Node.js http server code which is verbose and error-prone.mongooseODM (Object Document Mapper) for MongoDB. Lets you define schemas, validate data, write User.find() instead of raw MongoDB queries, and use .populate() for joins.dotenvLoads .env file into process.env. Keeps secrets out of source code. import 'dotenv/config' is the ES module way — it runs immediately on import.bcryptjsHashes passwords using the bcrypt algorithm. Bcrypt is intentionally slow (cost factor 10 = 2^10 hash iterations) which makes brute-force attacks impractical. Never store plain text passwords.jsonwebtokenCreates and verifies JWTs. jwt.sign({id}, secret, {expiresIn}) creates a token. jwt.verify(token, secret) checks it hasn't been tampered with and isn't expired.corsBrowsers block cross-origin requests by default (your frontend on port 5173 cannot call your backend on port 5000 without permission). This package adds the Access-Control-Allow-Origin header.nodemonDev tool. Watches your files and auto-restarts the server when you save. Without it you'd manually stop and restart after every change.
-  # Frontend packages
-    PackageWhy it's usedreactThe UI library. Lets you write components — functions that return JSX (HTML-like syntax). Manages the virtual DOM and efficient re-renders when state changes.react-domConnects React to the actual browser DOM. ReactDOM.createRoot().render() is the bridge between React and the HTML page.react-router-domClient-side routing. Lets you navigate between pages without a full page reload. <Routes>, <Route>, useNavigate(), useParams() all come from here.axiosHTTP client. Cleaner than fetch — automatic JSON parsing, request/response interceptors, better error objects (err.response.data.message instead of manual parsing).tailwindcssUtility CSS framework. Instead of writing CSS files, you add class names directly to elements. Used minimally here — mostly for the hidden sm:flex responsive utility and fade-up animation classes. Most styling is done with inline style objects for precise control.viteBuild tool and dev server. Extremely fast — starts in under a second. Handles JSX transpilation, module bundling, and hot module replacement (page updates without full reload when you save).
-
-# How It All Flows Together
-User fills signup form
-→ React state updates on each keystroke (useState)
-→ handleSubmit calls api.post('/auth/signup', form)
-→ Axios interceptor adds baseURL, sends HTTP POST to localhost:5000
-→ Express receives it, runs express.json() to parse body
-→ /api/auth router handles it
-→ User.create() triggers pre-save hook → bcrypt hashes password
-→ MongoDB stores the document
-→ jwt.sign() creates a token containing the user's _id
-→ Server responds with { name, email, role, token }
-→ Axios receives response, returns it to the component
-→ login(data) stores token in localStorage, user in React Context
-→ navigate('/client/dashboard') changes the URL
-→ React Router renders ClientDashboard
-→ useEffect fires, calls api.get('/projects/mine')
-→ Axios interceptor reads token from localStorage, adds Authorization header
-→ protect middleware verifies token, attaches req.user
-→ roleCheck('client') confirms role
-→ Projects fetched from MongoDB, returned as JSON
-→ React renders the project list
-Every single step is necessary. Remove any one piece and the whole flow breaks.
+```text
+├── backend/                  # Node.js, Express, and Mongoose Server layer
+│   ├── config/               # Database initialization configs
+│   ├── models/               # MongoDB Data schemas (User, Project, Bid, Milestone, etc.)
+│   ├── middleware/           # JWT authenticators and Role Guard checkers
+│   ├── routes/               # API route declaration paths
+│   └── server.js             # API Gateway execution engine
+│
+├── frontend/                 # React client layer compiled with Vite
+│   ├── src/
+│   │   ├── api/              # Axios global interceptors and configuration
+│   │   ├── context/          # State preservation (AuthContext, ThemeContext)
+│   │   ├── components/       # Scannable standalone components (Navbar, Bell, etc.)
+│   │   └── pages/            # Core application route screens
+│   └── index.css             # Design tokens and global theme styling
+🔄 Core Architectural Flows
+# 1. Dynamic Milestone UX Flow (V3)$$\text{Client Creates Milestone} \longrightarrow \text{Student Submits Task Notes} \longrightarrow \begin{cases} \text{Client Approves} \rightarrow \text{Release Funds} \\ \text{Client Rejects} \rightarrow \text{Rework Request} \end{cases}$$2. End-to-End MERN Data FlowClient Interaction: User interacts with a form $\rightarrow$ Local React states capture user input variables.API Handshake: Axios intercepts the submission, attaches the Authorization: Bearer <token> header, and pipes an HTTP POST payload securely to Render.Server Validation: Express passes the incoming context through express.json(), hits the specialized router path, and executes authentication guards.Database Lifecycle: Mongoose fires hooks (e.g., auto-hashing raw text via bcryptjs) and synchronizes state seamlessly with MongoDB Atlas.UI Synchronizer: The server responds with signed JWT records, structural models load into React Context, and react-router-dom updates the layout dynamically.📦 Core Ecosystem & DependenciesBackend Packagesexpress: Minimalist web framework to handle clean routing paths and middleware chains.mongoose: Object Document Mapper (ODM) enabling structured schemas and clean relational population queries.bcryptjs: Cryptographic password-hashing with an iterative salt cost factor to prevent brute-force exposures.jsonwebtoken: Issues and structurally validates secure JWT access tokens across server actions.cors: Manages browser-enforced security rules by whitelisting specific production domains.Frontend Packagesreact & react-dom: Virtual-DOM driven library powering modular, component-based user interfaces.react-router-dom: Manages declarative dynamic routing paths on the client side without triggering hard page reloads.axios: Advanced HTTP client configured with automated transformation adapters and request/response interceptors.tailwindcss: Utility-first atomic engine executing design classes directly in line with UI components.🛠️ Local Development QuickstartClone the Repo:Bashgit clone [https://github.com/SACHIN-619/ATP_24EG105C50.git](https://github.com/SACHIN-619/ATP_24EG105C50.git)
+cd ATP_24EG105C50
+Launch Backend: Follow the setup detailed in /backend/README.md.Launch Frontend: Follow the setup detailed in /frontend/README.md.
