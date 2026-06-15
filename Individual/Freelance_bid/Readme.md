@@ -1,11 +1,11 @@
-Here is your complete, updated Root README file with the new environment variables, startup commands, and key features sections integrated seamlessly. All icons and emojis have been completely removed.
+Here is your complete, updated Root README file. The repository tree structure has been fixed so it renders perfectly on GitHub without collapsing, and the live deployment links are fully restored.
 ## Freelancer Bid Portal (MERN Stack)
 A comprehensive Freelancer Bidding Portal built with the MERN Stack (MongoDB, Express, React, Node.js). This application enables clients to post projects with full budget control, allows students/freelancers to submit proposals and bids, tracks project lifecycles with dynamic milestones, and utilizes real-time style overrides via a centralized layout system.
-
 ## Live Deployments
 
-* Frontend Client (Vercel): vercel.app
-* Backend Service (Render API): onrender.com
+# Live Deployments
+   * Frontend Client (Vercel): https://freelancebid.vercel.app/
+   * Backend Service (Render API): https://freelance-bid.onrender.com/
 
 ------------------------------
 ## Key Features
@@ -19,24 +19,31 @@ A comprehensive Freelancer Bidding Portal built with the MERN Stack (MongoDB, Ex
 ------------------------------
 ## Architecture and Monorepo Structure
 
-├── backend/                  # Node.js, Express, and Mongoose Server layer
-│   ├── config/               # Database initialization configs
-│   ├── models/               # MongoDB Data schemas (User, Project, Bid, Milestone, etc.)
-│   ├── middleware/           # JWT authenticators and Role Guard checkers
-│   ├── routes/               # API route declaration paths
-│   └── server.js             # API Gateway execution engine
-│
-├── frontend/                 # React client layer compiled with Vite
-│   ├── src/
-│   │   ├── api/              # Axios global interceptors and configuration
-│   │   ├── context/          # State preservation (AuthContext, ThemeContext)
-│   │   ├── components/       # Scannable standalone components (Navbar, Bell, etc.)
-│   │   └── pages/            # Core application route screens
-│   └── index.css             # Design tokens and global theme styling
+.
+├── backend/
+│   ├── config/
+│   │   └── (Database initialization configs)
+│   ├── middleware/
+│   │   └── (JWT authenticators and Role Guard checkers)
+│   ├── models/
+│   │   └── (MongoDB Data schemas: User, Project, Bid, Milestone, etc.)
+│   ├── routes/
+│   │   └── (API route declaration paths)
+│   └── server.js
+└── frontend/
+    ├── index.css
+    └── src/
+        ├── api/
+        │   └── (Axios global interceptors and configuration)
+        ├── components/
+        │   └── (Scannable standalone components: Navbar, Bell, etc.)
+        ├── context/
+        │   └── (State preservation: AuthContext, ThemeContext)
+        └── pages/
+            └── (Core application route screens)
 
 ------------------------------
-## Core Architectural Flows
-## 1. Dynamic Milestone UX Flow
+## Core Architectural Flows## 1. Dynamic Milestone UX Flow
 
 Client Creates Milestone 
        │
@@ -112,5 +119,6 @@ git clone https://github.com
 cd ATP_24EG105C50
 
 ------------------------------
+
 
 
