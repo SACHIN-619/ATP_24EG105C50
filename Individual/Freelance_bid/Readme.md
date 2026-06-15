@@ -1,6 +1,7 @@
 Here is your complete, updated Root README file with the new environment variables, startup commands, and key features sections integrated seamlessly. All icons and emojis have been completely removed.
 ## Freelancer Bid Portal (MERN Stack)
 A comprehensive Freelancer Bidding Portal built with the MERN Stack (MongoDB, Express, React, Node.js). This application enables clients to post projects with full budget control, allows students/freelancers to submit proposals and bids, tracks project lifecycles with dynamic milestones, and utilizes real-time style overrides via a centralized layout system.
+
 ## Live Deployments
 
 * Frontend Client (Vercel): vercel.app
@@ -34,7 +35,8 @@ A comprehensive Freelancer Bidding Portal built with the MERN Stack (MongoDB, Ex
 │   └── index.css             # Design tokens and global theme styling
 
 ------------------------------
-## Core Architectural Flows## 1. Dynamic Milestone UX Flow
+## Core Architectural Flows
+## 1. Dynamic Milestone UX Flow
 
 Client Creates Milestone 
        │
