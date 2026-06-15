@@ -1,4 +1,4 @@
-Here is your complete, updated Root README file. The repository tree structure has been fixed so it renders perfectly on GitHub without collapsing, and the live deployment links are fully restored.
+
 ## Freelancer Bid Portal (MERN Stack)
 A comprehensive Freelancer Bidding Portal built with the MERN Stack (MongoDB, Express, React, Node.js). This application enables clients to post projects with full budget control, allows students/freelancers to submit proposals and bids, tracks project lifecycles with dynamic milestones, and utilizes real-time style overrides via a centralized layout system.
 ## Live Deployments
