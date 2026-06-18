@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 const features = [
   { icon: '◈', title: 'Post Projects', desc: 'Clients post tasks with budgets, deadlines, and tags in under 2 minutes.' },
@@ -10,6 +12,75 @@ const features = [
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  /* ── Dynamic Live Stats State ── */
+  const [stats, setStats] = useState({
+    studentsCount: '...',
+    projectsCount: '...',
+    satisfactionRate: '...'
+  });
+
+  // Dynamic rounding logic: snaps to the lower tens threshold and adds '+' (e.g., 11 -> 10+, 24 -> 20+, 105 -> 100+)
+  const formatToPlusValue = (num) => {
+    if (!num || num <= 0) return '0';
+    if (num < 10) return `${num}`; // Single digits show raw count safely
+    return `${Math.floor(num / 10) * 10}+`; // Round down to nearest 10 and add +
+  };
+
+  useEffect(() => {
+    async function fetchPlatformStats() {
+      try {
+        // Fetch all platform projects from browse marketplace
+        const { data: allProjects } = await api.get('/projects');
+        
+        if (allProjects && Array.isArray(allProjects)) {
+          // 1. Calculate Projects Count using the dynamic threshold logic
+          const totalProjectsRaw = allProjects.length;
+          const dynamicProjectsCount = formatToPlusValue(totalProjectsRaw);
+
+          // 2. Calculate Unique Students across all project bids
+          const uniqueStudents = new Set();
+          allProjects.forEach(project => {
+            if (project.bids && Array.isArray(project.bids)) {
+              project.bids.forEach(bid => {
+                const sId = bid.studentId?._id || bid.studentId;
+                if (sId) uniqueStudents.add(String(sId));
+              });
+            }
+          });
+          const totalStudentsRaw = uniqueStudents.size;
+          const dynamicStudentsCount = formatToPlusValue(totalStudentsRaw);
+
+          // 3. Mathematical Client Rating to Percentage Conversion
+          const clientsWithRatings = allProjects
+            .map(p => p.clientId)
+            .filter(client => client && typeof client.rating === 'number' && client.rating > 0);
+
+          let satisfactionPercentage = 100; // Perfect fallback score base
+          if (clientsWithRatings.length > 0) {
+            // Deduplicate clients to find genuine average rating score base
+            const uniqueClients = Array.from(new Map(clientsWithRatings.map(c => [c._id || c, c])).values());
+            const sumRatings = uniqueClients.reduce((sum, c) => sum + c.rating, 0);
+            const averageRating = sumRatings / uniqueClients.length;
+            
+            // Convert standard 5-star scaling seamlessly into 100% metrics base
+            satisfactionPercentage = Math.round((averageRating / 5) * 100);
+          }
+
+          setStats({
+            studentsCount: dynamicStudentsCount,
+            projectsCount: dynamicProjectsCount,
+            satisfactionRate: `${satisfactionPercentage}%`
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching live metrics:", err);
+        setStats({ studentsCount: '10+', projectsCount: '10+', satisfactionRate: '98%' });
+      }
+    }
+
+    fetchPlatformStats();
+  }, []);
 
   return (
     <div style={{ background: 'var(--surface)' }}>
@@ -82,7 +153,11 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'flex', gap: 32, marginTop: 40 }}>
-            {[['500+', 'Students'], ['200+', 'Projects'], ['98%', 'Satisfaction']].map(([n, l]) => (
+            {[
+              [stats.studentsCount, 'Students'], 
+              [stats.projectsCount, 'Projects'], 
+              [stats.satisfactionRate, 'Satisfaction']
+            ].map(([n, l]) => (
               <div key={l}>
                 <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--text-primary)', fontFamily: '"Playfair Display", serif' }}>{n}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.03em' }}>{l}</div>
@@ -101,7 +176,7 @@ export default function Home() {
             border: '1px solid rgba(79,70,229,0.08)',
           }}>
             {/* Mock project card */}
-            <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: 'var(--shadow-sm)', marginBottom: 12 }}>
+            <div style={{ background: 'var(--surface)', borderRadius: 12, padding: 20, boxShadow: 'var(--shadow-sm)', marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Build a React Dashboard</div>
@@ -126,7 +201,7 @@ export default function Home() {
             </div>
 
             {/* Mock bid */}
-            <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ background: 'var(--surface)', borderRadius: 12, padding: 16, boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>S</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Sneha R. placed a bid</div>
@@ -139,14 +214,16 @@ export default function Home() {
           {/* Floating badge */}
           <div style={{
             position: 'absolute', bottom: -16, left: -16,
-            background: '#fff',
+            background: 'var(--surface)',
             borderRadius: 12, padding: '10px 16px',
             boxShadow: 'var(--shadow-md)',
             border: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', flexShrink: 0 }} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>24 projects live now</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
+              Live System Overview
+            </span>
           </div>
         </div>
       </section>
@@ -173,7 +250,7 @@ export default function Home() {
               padding: 32,
               border: '1px solid var(--border)',
               borderRadius: 16,
-              background: '#fff',
+              background: 'var(--surface)',
               transition: 'all 0.2s',
               cursor: 'default',
             }}
@@ -214,7 +291,7 @@ export default function Home() {
           <div style={{ display: 'flex', gap: 12 }}>
             <button onClick={() => navigate('/signup?role=client')} style={{
               padding: '12px 28px', borderRadius: 10, border: 'none',
-              background: '#fff', color: 'var(--accent)', fontWeight: 600,
+              background: 'var(--surface)', color: 'var(--accent)', fontWeight: 600,
               fontSize: 14, cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
               transition: 'opacity 0.15s',
             }}
@@ -234,7 +311,45 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{ 
+      borderTop: '1px solid var(--border)', 
+      background: 'var(--surface)', 
+      padding: '40px 24px 48px', 
+      marginTop: '40px' 
+    }}>
+      <div style={{ 
+        maxWidth: 1100, 
+        margin: '0 auto', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexWrap: 'wrap', 
+        gap: 20 
+      }}>
+        <div>
+          <span style={{ fontFamily: '"Playfair Display", serif', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
+            Bid<span style={{ color: 'var(--accent)' }}>Portal</span>
+          </span>
+          <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--text-muted)', fontWeight: 300 }}>
+            © {new Date().getFullYear()} Campus Freelance Hub. All rights reserved.
+          </p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: 24 }}>
+          <a href="/projects" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Browse Projects</a>
+          <a href="/leaderboard" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>🏆 Leaderboard</a>
+          <a href="mailto:support@campusbidportal.edu" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Support Contact</a>
+        </div>
+      </div>
+    </footer>
   );
 }
 

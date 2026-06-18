@@ -6,7 +6,8 @@ import authRoutes       from './routes/auth.js';
 import projectRoutes    from './routes/projects.js';
 import bidRoutes        from './routes/bids.js';
 import userRoutes       from './routes/users.js';
-import milestoneRoutes  from './routes/milestones.js';   
+import milestoneRoutes  from './routes/milestones.js';  
+import notificationRoutes from './routes/notifications.js'; 
 
 connectDB();
 const app = express();
@@ -19,6 +20,7 @@ app.use('/api/bids',       bidRoutes);
 app.use('/api/users',      userRoutes);
 app.use('/api/projects',   milestoneRoutes);   // ← (shares /api/projects/:id/milestones)
 app.use('/api/milestones', milestoneRoutes);   // ←  (for /api/milestones/:id/approve etc)
+app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

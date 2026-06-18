@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+// import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import ReviewModal from '../components/ReviewModal';
@@ -274,14 +275,26 @@ export default function ProjectDetails() {
                             }}>⭐ Leave Review</button>
                           )}
 
-                          {/* 3. View profile */}
+                          {/* 3. View profile
                           <a
                             href={`/profile/${bid.studentId?._id}`}
                             onClick={e => e.stopPropagation()}
                             style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500, textDecoration: 'none' }}
                           >
                             View Profile →
-                          </a>
+                          </a> */}
+                          <Link
+                            to={`/profile/${bid.studentId?._id}`}
+                            style={{
+                              fontSize: 12,
+                              color: 'var(--accent)',
+                              fontWeight: 600,
+                              textDecoration: 'none',
+                              fontFamily: '"DM Sans", sans-serif'
+                            }}
+                          >
+                            View Profile →
+                          </Link>
 
                         </div>
                       </div>
@@ -332,7 +345,7 @@ export default function ProjectDetails() {
             </div>
 
             {/* Milestone tracker link */}
-            {(project.status === 'inProgress' || project.status === 'completed') && (
+            {/* {(project.status === 'inProgress' || project.status === 'completed') && (
               <button onClick={() => navigate(`/projects/${id}/milestones`)} style={{
                 width: '100%', padding: '12px',
                 background: '#fff',
@@ -348,6 +361,54 @@ export default function ProjectDetails() {
               >
                 🏁 View Milestone Tracker
               </button>
+            )} */}
+
+            {/* Context-Aware Milestone Hub Tracking Card */}
+            {(project.status === 'inProgress' || project.status === 'completed') && (
+              <div style={{
+                background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
+                borderRadius: 14,
+                padding: '20px',
+                border: '1px solid #C7D2FE',
+                boxShadow: 'var(--shadow-sm)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12
+              }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <span style={{ fontSize: 20 }}>🏁</span>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#3730A3', fontFamily: '"DM Sans", sans-serif' }}>
+                      Milestone Escrow Hub
+                    </h4>
+                    <p style={{ margin: '2px 0 0', fontSize: 12, color: '#4338CA', fontWeight: 300 }}>
+                      {isOwner ? 'Release funds & manage deliverables' : 'Track progress & claim virtual payments'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate(`/projects/${id}/milestones`)}
+                  style={{
+                    width: '100%',
+                    padding: '11px',
+                    background: 'var(--accent)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 9,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: '"DM Sans", sans-serif',
+                    boxShadow: '0 4px 10px rgba(79,70,229,0.15)',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-hover)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--accent)'; }}
+                >
+                  {isOwner ? '⚙️ Manage Project Milestones' : '🚀 Open Tracking Timeline'}
+                </button>
+              </div>
             )}
 
             {/* Student: sidebar CTA */}

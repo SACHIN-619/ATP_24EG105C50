@@ -106,7 +106,7 @@ router.put('/:id/bids/:bidId/accept', protect, roleCheck('client'), async (req, 
     if (!project) return res.status(404).json({ message: 'Project not found' });
     if (String(project.clientId) !== String(req.user._id))
       return res.status(403).json({ message: 'Not your project' });
-// 1. Reject all other bids
+    // 1. Reject all other bids
     await Bid.updateMany(
       { projectId: req.params.id, _id: { $ne: req.params.bidId } },
       { status: 'rejected' }
@@ -117,6 +117,15 @@ router.put('/:id/bids/:bidId/accept', protect, roleCheck('client'), async (req, 
     );
     // 3. Update project status
     await Project.findByIdAndUpdate(req.params.id, { status: 'inProgress' });
+
+    // ADD TO NOTIFY THE CLIENT THE SELECTION WAS SUCCESSFUL
+    await createNotification(
+      req.user._id, // The Client's authenticated ID
+      'project_started',
+      `💼 You accepted the proposal for "${project.title}". You can now manage milestones!`,
+      `/projects/${req.params.id}/milestones`
+    );
+
     // Notify the accepted student
     await createNotification(
       accepted.studentId,
@@ -139,7 +148,7 @@ router.put('/:id/bids/:bidId/accept', protect, roleCheck('client'), async (req, 
         `/projects/${req.params.id}`
       );
     }
- // 4. Finally, send the response
+    // 4. Finally, send the response
     res.json(accepted);
   } catch (err) {
     res.status(500).json({ message: err.message });
