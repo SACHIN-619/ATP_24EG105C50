@@ -1,11 +1,10 @@
-/* @tailwind base;
-@tailwind components; 
-@tailwind utilities; */
 @import "tailwindcss";
-/* 
-@tailwind base;
-@tailwind components;
-@tailwind utilities; */
+
+/* Tailwind v4 Theme Configuration */
+@theme {
+  --font-display: "Playfair Display", serif;
+  --font-sans: "DM Sans", sans-serif;
+}
 
 :root {
   --accent: #4F46E5;
@@ -63,7 +62,6 @@
 [data-theme="dark"] textarea::placeholder {
   color: #475569 !important;
 }
-
 
 * { box-sizing: border-box; }
 
