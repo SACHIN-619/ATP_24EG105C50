@@ -1,11 +1,41 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Project from '../models/Project.js'; // Ensure this model path matches your project structure
 
 const router = express.Router();
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+// GET /api/auth/platform-stats
+router.get('/platform-stats', async (req, res) => {
+  try {
+    // 1. Count ALL students registered on the platform (active + inactive)
+    const totalStudents = await User.countDocuments({ role: 'student' });
+
+    // 2. Count ALL projects posted on the platform 
+    const totalProjects = await Project.countDocuments();
+
+    // 3. Compute real calculated system satisfaction percentage using active platform scores
+    const usersWithRatings = await User.find({ rating: { $gt: 0 } }).select('rating');
+    
+    let satisfactionPercentage = 98; // Default fallback health target
+    if (usersWithRatings.length > 0) {
+      const sumRatings = usersWithRatings.reduce((sum, u) => sum + u.rating, 0);
+      const averageRating = sumRatings / usersWithRatings.length;
+      satisfactionPercentage = Math.round((averageRating / 5) * 100);
+    }
+
+    res.json({
+      totalStudents,
+      totalProjects,
+      satisfactionPercentage
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
@@ -48,34 +78,5 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-// GET /api/auth/platform-stats
-router.get('/platform-stats', async (req, res) => {
-  try {
-    // 1. Count ALL students registered on the platform (active or inactive)
-    const totalStudents = await User.countDocuments({ role: 'student' });
 
-    // 2. Count ALL projects posted on the platform
-    // Dynamic import if Project model isn't imported at top
-    const Project = (await import('../models/Project.js')).default;
-    const totalProjects = await Project.countDocuments();
-
-    // 3. Compute real calculated system satisfaction percentage using all user profiles
-    const usersWithRatings = await User.find({ rating: { $gt: 0 } }).select('rating');
-    
-    let satisfactionPercentage = 98; // Default fallback health target
-    if (usersWithRatings.length > 0) {
-      const sumRatings = usersWithRatings.reduce((sum, u) => sum + u.rating, 0);
-      const averageRating = sumRatings / usersWithRatings.length;
-      satisfactionPercentage = Math.round((averageRating / 5) * 100);
-    }
-
-    res.json({
-      totalStudents,
-      totalProjects,
-      satisfactionPercentage
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 export default router;
