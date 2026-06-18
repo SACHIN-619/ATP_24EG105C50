@@ -20,61 +20,62 @@ export default function Home() {
     satisfactionRate: '...'
   });
 
-  // Dynamic rounding logic: snaps to the lower tens threshold and adds '+' (e.g., 11 -> 10+, 24 -> 20+, 105 -> 100+)
+  // Dynamic Threshold Logic: Snaps down to nearest multiple of 10 as requested (e.g., 11 -> 10+, 24 -> 20+, 105 -> 100+)
   const formatToPlusValue = (num) => {
     if (!num || num <= 0) return '0';
-    if (num < 10) return `${num}`; // Single digits show raw count safely
-    return `${Math.floor(num / 10) * 10}+`; // Round down to nearest 10 and add +
+    if (num < 10) return `${num}`; // Single digits display raw values cleanly
+    return `${Math.floor(num / 10) * 10}+`; // Round down threshold snapping
   };
 
   useEffect(() => {
     async function fetchPlatformStats() {
       try {
-        // Fetch all platform projects from browse marketplace
-        const { data: allProjects } = await api.get('/projects');
-        
+        // Parallel fetch utilizing your real public backend routes
+        const [projectsRes, leaderboardRes] = await Promise.all([
+          api.get('/projects'),
+          api.get('/users/leaderboard')
+        ]);
+
+        const allProjects = projectsRes.data;
+        const totalStudentsData = leaderboardRes.data;
+
+        let dynamicProjectsCount = '0';
+        let dynamicStudentsCount = '0';
+        let satisfactionPercentage = 98; // High-quality baseline platform health target
+
+        // 1. Compute Projects Range Step
         if (allProjects && Array.isArray(allProjects)) {
-          // 1. Calculate Projects Count using the dynamic threshold logic
-          const totalProjectsRaw = allProjects.length;
-          const dynamicProjectsCount = formatToPlusValue(totalProjectsRaw);
+          dynamicProjectsCount = formatToPlusValue(allProjects.length);
+        }
 
-          // 2. Calculate Unique Students across all project bids
-          const uniqueStudents = new Set();
-          allProjects.forEach(project => {
-            if (project.bids && Array.isArray(project.bids)) {
-              project.bids.forEach(bid => {
-                const sId = bid.studentId?._id || bid.studentId;
-                if (sId) uniqueStudents.add(String(sId));
-              });
-            }
-          });
-          const totalStudentsRaw = uniqueStudents.size;
-          const dynamicStudentsCount = formatToPlusValue(totalStudentsRaw);
+        // 2. Compute Registered/Inactive Student Population via public leaderboard dataset
+        if (totalStudentsData && Array.isArray(totalStudentsData)) {
+          dynamicStudentsCount = formatToPlusValue(totalStudentsData.length);
 
-          // 3. Mathematical Client Rating to Percentage Conversion
-          const clientsWithRatings = allProjects
-            .map(p => p.clientId)
-            .filter(client => client && typeof client.rating === 'number' && client.rating > 0);
+          // 3. Mathematical computation of real platform satisfaction percentage 
+          // Isolates rating indexes directly from actual system profiles 
+          const verifiedRatings = totalStudentsData
+            .map(student => student.rating)
+            .filter(rating => typeof rating === 'number' && rating > 0);
 
-          let satisfactionPercentage = 100; // Perfect fallback score base
-          if (clientsWithRatings.length > 0) {
-            // Deduplicate clients to find genuine average rating score base
-            const uniqueClients = Array.from(new Map(clientsWithRatings.map(c => [c._id || c, c])).values());
-            const sumRatings = uniqueClients.reduce((sum, c) => sum + c.rating, 0);
-            const averageRating = sumRatings / uniqueClients.length;
+          if (verifiedRatings.length > 0) {
+            const sumRatings = verifiedRatings.reduce((sum, current) => sum + current, 0);
+            const averageRating = sumRatings / verifiedRatings.length;
             
-            // Convert standard 5-star scaling seamlessly into 100% metrics base
+            // Equation: (Average Rating / 5.0 Scale) * 100
             satisfactionPercentage = Math.round((averageRating / 5) * 100);
           }
-
-          setStats({
-            studentsCount: dynamicStudentsCount,
-            projectsCount: dynamicProjectsCount,
-            satisfactionRate: `${satisfactionPercentage}%`
-          });
         }
+
+        setStats({
+          studentsCount: dynamicStudentsCount,
+          projectsCount: dynamicProjectsCount,
+          satisfactionRate: `${satisfactionPercentage}%`
+        });
+
       } catch (err) {
         console.error("Error fetching live metrics:", err);
+        // Clean fallback parameters if network is interrupted
         setStats({ studentsCount: '10+', projectsCount: '10+', satisfactionRate: '98%' });
       }
     }
