@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import Milestone from '../models/Milestone.js';
 import Review from '../models/Review.js';
 import Bid from '../models/Bid.js';
 import Project from '../models/Project.js';
