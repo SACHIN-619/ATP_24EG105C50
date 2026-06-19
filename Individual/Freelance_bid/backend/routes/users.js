@@ -1,15 +1,76 @@
 import express from 'express';
 import User from '../models/User.js';
-import Milestone from '../models/Milestone.js';
+import Milestone from '../models/Milestone.js'; // Moved clean to the top
 import Review from '../models/Review.js';
-import Bid from '../models/Bid.js';
+import Bid from '../models/Bid.js'; // Moved clean to the top
 import Project from '../models/Project.js';
 import { protect } from '../middleware/auth.js';
 import { roleCheck } from '../middleware/roleCheck.js';
 import { createNotification } from '../utils/notify.js';
 
-
 const router = express.Router();
+
+// GET /api/users/leaderboard — Fair, Multi-Tier Balanced Campus Ranking
+router.get('/leaderboard', async (req, res) => {
+  try {
+    // 1. Fetch ALL registered platform students automatically (active + inactive)
+    const students = await User.find({ role: 'student' })
+      .select('name skills rating verifiedSkills portfolio createdAt')
+      .lean();
+
+    const enriched = await Promise.all(students.map(async (s) => {
+      // Find all project contracts accepted by this student
+      const acceptedBids = await Bid.find({ studentId: s._id, status: 'accepted' }).select('projectId');
+      const projectIds = acceptedBids.map(b => b.projectId);
+
+      // Aggregate live virtual earnings from completed and approved milestones
+      const earned = await Milestone.aggregate([
+        { $match: { projectId: { $in: projectIds }, status: 'approved' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+
+      return {
+        _id:            s._id,
+        name:           s.name,
+        rating:         s.rating || 0,
+        skills:         s.skills || [],
+        verifiedSkills: s.verifiedSkills || [],
+        projectsDone:   acceptedBids.length || 0,
+        earned:         earned[0]?.total || 0,
+        portfolioCount: s.portfolio?.length || 0,
+        createdAt:      s.createdAt
+      };
+    }));
+
+    // 🏆 Balanced 6-tier fallback sorting algorithm
+    enriched.sort((a, b) => {
+      // Tier 1: Core Virtual Earnings
+      if (b.earned !== a.earned) return b.earned - a.earned;
+      
+      // Tier 2: Star Execution Rating Quality
+      if (b.rating !== a.rating) return b.rating - a.rating;
+      
+      // Tier 3: Technical Quiz Badge counts
+      if (b.verifiedSkills.length !== a.verifiedSkills.length) {
+        return b.verifiedSkills.length - a.verifiedSkills.length;
+      }
+      
+      // Tier 4: Profile Preparation (Portfolio item size completeness)
+      if (b.portfolioCount !== a.portfolioCount) return b.portfolioCount - a.portfolioCount;
+      
+      // Tier 5: Variety of claimed general skills
+      if (b.skills.length !== a.skills.length) return b.skills.length - a.skills.length;
+      
+      // Tier 6: First-come baseline seniority fallback (Oldest accounts rank higher)
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+
+    // Safely return top 20 campus entries
+    res.json(enriched.slice(0, 20));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // GET /api/users/:id  — public profile
 router.get('/:id', async (req, res) => {
@@ -54,7 +115,6 @@ router.put('/me', protect, async (req, res) => {
 router.post('/reviews', protect, roleCheck('client'), async (req, res) => {
   const { projectId, studentId, rating, comment } = req.body;
   try {
-    // Validate: project must be completed and belong to this client
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: 'Project not found' });
     if (String(project.clientId) !== String(req.user._id))
@@ -62,7 +122,6 @@ router.post('/reviews', protect, roleCheck('client'), async (req, res) => {
     if (project.status !== 'completed')
       return res.status(400).json({ message: 'Project must be completed before reviewing' });
 
-    // Validate: student actually worked on this project (accepted bid)
     const bid = await Bid.findOne({ projectId, studentId, status: 'accepted' });
     if (!bid) return res.status(400).json({ message: 'This student did not work on your project' });
 
@@ -70,14 +129,14 @@ router.post('/reviews', protect, roleCheck('client'), async (req, res) => {
       projectId, studentId, rating, comment,
       clientId: req.user._id
     });
-    //v4
+
     await createNotification(
       studentId,
       'review_received',
       `⭐ You received a ${rating}-star review!`,
       `/profile/${studentId}`
     );
-    // Recompute average rating for student
+
     const allReviews = await Review.find({ studentId });
     const avg = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
     await User.findByIdAndUpdate(studentId, { rating: Math.round(avg * 10) / 10 });
@@ -90,8 +149,7 @@ router.post('/reviews', protect, roleCheck('client'), async (req, res) => {
   }
 });
 
-
-// Quiz questions store (expandable)
+// Quiz questions store
 const QUIZZES = {
   React: [
     { q: 'What hook manages local state in React?', options: ['useEffect', 'useState', 'useContext', 'useRef'], answer: 1 },
@@ -125,70 +183,30 @@ const QUIZZES = {
 
 // POST /api/users/verify-skill
 router.post('/verify-skill', protect, roleCheck('student'), async (req, res) => {
-  const { skill, answers } = req.body;  // answers: [0,1,2,1,0]
-
+  const { skill, answers } = req.body;
   try {
     const quiz = QUIZZES[skill];
     if (!quiz) return res.status(400).json({ message: 'No quiz available for this skill' });
 
     const correct = answers.filter((a, i) => a === quiz[i].answer).length;
-    const passed = correct >= 4;  // 4/5 to pass
+    const passed = correct >= 4;
 
     if (passed) {
       await User.findByIdAndUpdate(req.user._id, {
         $addToSet: { verifiedSkills: skill }
       });
     }
-
     res.json({ passed, correct, total: quiz.length, skill });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-// GET /api/users/quiz/:skill  — get questions (no answers sent to client)
+
+// GET /api/users/quiz/:skill
 router.get('/quiz/:skill', protect, (req, res) => {
   const quiz = QUIZZES[req.params.skill];
   if (!quiz) return res.status(404).json({ message: 'No quiz for this skill' });
-  res.json(quiz.map(({ q, options }) => ({ q, options })));  // strip answers
+  res.json(quiz.map(({ q, options }) => ({ q, options })));
 });
 
-// GET /api/leaderboard
-router.get('/leaderboard', async (req, res) => {
-  try {
-    // Students with at least one accepted bid
-    const students = await User.find({ role: 'student' })
-      .select('name skills rating verifiedSkills portfolio')
-      .sort('-rating')
-      .limit(20);
-
-    // For each student, count completed projects and sum approved milestones
-    const Milestone = (await import('../models/Milestone.js')).default;
-    const Bid       = (await import('../models/Bid.js')).default;
-
-    const enriched = await Promise.all(students.map(async (s) => {
-      const acceptedBids = await Bid.find({ studentId: s._id, status: 'accepted' });
-      const projectIds   = acceptedBids.map(b => b.projectId);
-      const earned       = await Milestone.aggregate([
-        { $match: { projectId: { $in: projectIds }, status: 'approved' } },
-        { $group: { _id: null, total: { $sum: '$amount' } } }
-      ]);
-      return {
-        _id:            s._id,
-        name:           s.name,
-        rating:         s.rating,
-        skills:         s.skills,
-        verifiedSkills: s.verifiedSkills || [],
-        projectsDone:   acceptedBids.length,
-        earned:         earned[0]?.total || 0,
-        badges:         (s.verifiedSkills || []).length,
-      };
-    }));
-
-    // Sort by earned (virtual), then rating
-    enriched.sort((a, b) => b.earned - a.earned || b.rating - a.rating);
-    res.json(enriched);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 export default router;

@@ -16,6 +16,15 @@ A comprehensive Freelancer Bidding Portal built with the MERN Stack (MongoDB, Ex
 * Smart Theming Canvas (V4 Update): Complete implementation of full dark/light layout modifications powered natively through CSS properties and stateful Tailwind CSS v4 variables with standard local persistence.
 * Cryptographic Security Layer: Zero plain-text data footprints achieved through state-of-the-art bcryptjs password hashing and state verification using secure jsonwebtoken signatures.
 
+# Leaderboard
+ 1. It Rewards Real Value Over Inactivity (Earnings First)The metric tier hierarchy ensures that your leaderboard does not lose its competitive edge. A student who has worked hard and completed real milestones to earn ₹15,000 will always rank higher than a student with ₹0 earnings, even if that inactive student somehow has a perfect $5.0$ star rating.
+ 2. It Handles the "New User Cold Start" FairlyRight now, your platform correctly shows 7 Students registered on the home page, but your leaderboard is totally empty. That is an awkward experience for new users. Showing everyone with $0$ earnings and $0$ projects gives everyone a starting line. They compete on verified quiz badges and ratings until they land their first contract.
+ 3. It Implements a Balanced Three-Tier Tie-BreakerWhen multiple students are sitting at ₹0 earnings (common at the start of a campus rollout), the sorting logic breaks ties beautifully:
+ * Tier 1: Total Virtual Earnings (The ultimate hustle indicator)
+ * Tier 2: Star Rating (Quality of execution)
+ * Tier 3: Verified Skills/Badges (Academic test verification via your built-in quiz engines)
+ * Tier 4: Portfolio Count (Preparation & effort—more items = higher rank).
+* Tier 5: Total Skills listed (Profile completeness).
 ------------------------------
 ## Architecture and Monorepo Structure
 
