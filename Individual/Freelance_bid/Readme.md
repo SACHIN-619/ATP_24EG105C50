@@ -86,7 +86,7 @@ Student Submits Task Notes
 * react-router-dom: Manages declarative dynamic routing paths on the client side without triggering hard page reloads.
 * axios: Advanced HTTP client configured with automated transformation adapters and request/response interceptors.
 * tailwindcss: Utility-first atomic engine executing design classes directly in line with UI components.
-
+- for css -> npm install @tailwindcss/vite  
 ------------------------------
 ## Local Development Quickstart
 To run this project locally, you will need to configure environment variables for both the backend and frontend layers, then execute their respective startup scripts.
