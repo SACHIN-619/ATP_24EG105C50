@@ -68,11 +68,8 @@ app.use('/api/auth',       authRoutes);
 app.use('/api/projects',   projectRoutes);
 app.use('/api/bids',       bidRoutes);
 app.use('/api/users',      userRoutes);
-<<<<<<< HEAD
-app.use('/api/projects',   milestoneRoutes);   // ← (shares /api/projects/:id/milestones)
-app.use('/api/milestones', milestoneRoutes);   // ←  (for /api/milestones/:id/approve etc)
+
 app.use('/api/notifications', notificationRoutes);
-=======
 app.use('/api/projects',   milestoneRoutes);   // (shares /api/projects/:id/milestones)
 app.use('/api/milestones', milestoneRoutes);   // (for /api/milestones/:id/approve etc)
 
@@ -80,7 +77,6 @@ app.use('/api/milestones', milestoneRoutes);   // (for /api/milestones/:id/appro
 app.get("/", (req, res) => {
   res.status(200).json({ status: "online", message: "BidPortal Backend API service is live!" });
 });
->>>>>>> 0566b558e2df25c420c87c5fbb26274833fc7a1f
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
