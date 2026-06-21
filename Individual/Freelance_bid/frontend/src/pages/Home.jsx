@@ -394,8 +394,9 @@
 //     >{children}</button>
 //   );
 // }
+
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 
@@ -681,7 +682,8 @@ export default function Home() {
   );
 }
 
-function Footer() {
+
+export default function Footer() {
   return (
     <footer style={{ 
       borderTop: '1px solid var(--border)', 
@@ -708,9 +710,9 @@ function Footer() {
         </div>
         
         <div style={{ display: 'flex', gap: 24 }}>
-          <a href="/projects" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Browse Projects</a>
-          <a href="/leaderboard" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>🏆 Leaderboard</a>
-          <a href="mailto:support@campusbidportal.edu" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Support Contact</a>
+          <Link to="/projects" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Browse Projects</Link>
+          <Link to="/leaderboard" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>🏆 Leaderboard</Link>
+          <a href="mailto:Sachinkr52990@gmail.com" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Support Contact</a>
         </div>
       </div>
     </footer>

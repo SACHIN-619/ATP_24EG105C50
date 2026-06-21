@@ -209,4 +209,47 @@ router.get('/quiz/:skill', protect, (req, res) => {
   res.json(quiz.map(({ q, options }) => ({ q, options })));
 });
 
+// POST /api/users/reviews/client — Student reviews a Client
+router.post('/reviews/client', protect, roleCheck('student'), async (req, res) => {
+  const { projectId, clientId, rating, comment } = req.body;
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+    if (project.status !== 'completed')
+      return res.status(400).json({ message: 'Project must be completed before leaving a review' });
+
+    // Verify this student actually had an accepted bid on this project
+    const bid = await Bid.findOne({ projectId, studentId: req.user._id, status: 'accepted' });
+    if (!bid) return res.status(400).json({ message: 'You did not work on this project' });
+
+    // Create the review record
+    const review = await Review.create({
+      projectId,
+      revieweeId: clientId,
+      reviewerId: req.user._id,
+      rating,
+      comment
+    });
+
+    // Send a notification to the client
+    await createNotification(
+      clientId,
+      'review_received',
+      `⭐ A student left you a ${rating}-star review for your project!`,
+      `/profile/${clientId}`
+    );
+
+    // Recompute average star rating for the Client
+    const allReviews = await Review.find({ revieweeId: clientId });
+    const avg = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+    
+    // Update the client's profile document
+    await User.findByIdAndUpdate(clientId, { rating: Math.round(avg * 10) / 10 });
+
+    res.status(201).json(review);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;

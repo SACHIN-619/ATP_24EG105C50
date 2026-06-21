@@ -1,11 +1,10 @@
 import express from 'express';
 import Milestone from '../models/Milestone.js';
 import Bid from '../models/Bid.js';
+import Project from '../models/Project.js';
 import { protect } from '../middleware/auth.js';
 import { roleCheck } from '../middleware/roleCheck.js';
 import { createNotification } from '../utils/notify.js';
-import Project from '../models/Project.js';
-
 
 const router = express.Router();
 
@@ -19,7 +18,7 @@ router.get('/:id/milestones', protect, async (req, res) => {
   }
 });
 
-// POST /api/projects/:id/milestones  (client only)
+// POST /api/projects/:id/milestones (client only)
 router.post('/:id/milestones', protect, roleCheck('client'), async (req, res) => {
   const { title, amount, dueDate, note } = req.body;
   try {
@@ -27,14 +26,17 @@ router.post('/:id/milestones', protect, roleCheck('client'), async (req, res) =>
     if (!project) return res.status(404).json({ message: 'Project not found' });
     if (String(project.clientId) !== String(req.user._id))
       return res.status(403).json({ message: 'Not your project' });
+    if (project.status === 'completed')
+      return res.status(400).json({ message: 'Cannot add milestones to a completed project' });
 
     // Guard: total milestones amount must not exceed project budget
     const existing = await Milestone.find({ projectId: req.params.id });
     const totalSoFar = existing.reduce((sum, m) => sum + m.amount, 0);
-    if (totalSoFar + Number(amount) > project.budget)
+    if (totalSoFar + Number(amount) > project.budget) {
       return res.status(400).json({
-        message: `Milestone total would exceed project budget of ₹${project.budget}`
+        message: `Milestone total would exceed project budget of ₹${project.budget}. Remaining allowance: ₹${project.budget - totalSoFar}`
       });
+    }
 
     const milestone = await Milestone.create({
       projectId: req.params.id, title, amount, dueDate, note
@@ -45,13 +47,12 @@ router.post('/:id/milestones', protect, roleCheck('client'), async (req, res) =>
   }
 });
 
-// PUT /api/milestones/:milestoneId/complete  (student marks done)
+// PUT /api/milestones/:milestoneId/complete (student marks done)
 router.put('/:milestoneId/complete', protect, roleCheck('student'), async (req, res) => {
   try {
     const milestone = await Milestone.findById(req.params.milestoneId);
     if (!milestone) return res.status(404).json({ message: 'Milestone not found' });
 
-    // Verify student has accepted bid on this project
     const bid = await Bid.findOne({
       projectId: milestone.projectId,
       studentId: req.user._id,
@@ -60,31 +61,42 @@ router.put('/:milestoneId/complete', protect, roleCheck('student'), async (req, 
     if (!bid) return res.status(403).json({ message: 'You are not the assigned student' });
 
     if (milestone.status !== 'pending')
-      return res.status(400).json({ message: 'Only pending milestones can be marked complete' });
+      return res.status(400).json({ message: 'Only pending milestones can be submitted' });
 
     milestone.status = 'completed';
     milestone.note = req.body.note || milestone.note;
     await milestone.save();
+
+    // Notify Client to approve work
+    const project = await Project.findById(milestone.projectId);
+    if (project) {
+      await createNotification(
+        project.clientId,
+        'milestone_submitted',
+        `🚀 Milestone "${milestone.title}" has been submitted for approval!`,
+        `/projects/${milestone.projectId}/milestones`
+      );
+    }
+
     res.json(milestone);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// PUT /api/milestones/:milestoneId/approve  (client approves → virtual payment)
+// PUT /api/milestones/:milestoneId/approve (client approves → virtual payment)
 router.put('/:milestoneId/approve', protect, roleCheck('client'), async (req, res) => {
   try {
-    const milestone = await Milestone.findById(req.params.milestoneId)
-      .populate('projectId');
+    const milestone = await Milestone.findById(req.params.milestoneId).populate('projectId');
     if (!milestone) return res.status(404).json({ message: 'Milestone not found' });
     if (String(milestone.projectId.clientId) !== String(req.user._id))
       return res.status(403).json({ message: 'Not your project' });
     if (milestone.status !== 'completed')
-      return res.status(400).json({ message: 'Milestone must be completed first' });
+      return res.status(400).json({ message: 'Milestone must be submitted as completed first' });
 
     milestone.status = 'approved';
     await milestone.save();
-    const proj = await Project.findById(milestone.projectId);
+
     const acceptedBid = await Bid.findOne({ projectId: milestone.projectId, status: 'accepted' });
     if (acceptedBid) {
       await createNotification(
@@ -100,20 +112,20 @@ router.put('/:milestoneId/approve', protect, roleCheck('client'), async (req, re
   }
 });
 
-// PUT /api/milestones/:milestoneId/reject  (client rejects → back to pending)
+// PUT /api/milestones/:milestoneId/reject (client rejects → back to pending)
 router.put('/:milestoneId/reject', protect, roleCheck('client'), async (req, res) => {
   try {
-    const milestone = await Milestone.findById(req.params.milestoneId)
-      .populate('projectId');
+    const milestone = await Milestone.findById(req.params.milestoneId).populate('projectId');
     if (!milestone) return res.status(404).json({ message: 'Milestone not found' });
     if (String(milestone.projectId.clientId) !== String(req.user._id))
       return res.status(403).json({ message: 'Not your project' });
     if (milestone.status !== 'completed')
-      return res.status(400).json({ message: 'Can only reject a completed milestone' });
+      return res.status(400).json({ message: 'Can only reject a submitted completed milestone' });
 
-    milestone.status = 'pending';  // sent back for rework
-    milestone.note = req.body.note || '';
+    milestone.status = 'pending'; 
+    milestone.note = req.body.note || 'Rework requested';
     await milestone.save();
+
     const acceptedBid = await Bid.findOne({ projectId: milestone.projectId, status: 'accepted' });
     if (acceptedBid) {
       await createNotification(
@@ -129,11 +141,10 @@ router.put('/:milestoneId/reject', protect, roleCheck('client'), async (req, res
   }
 });
 
-// DELETE /api/milestones/:milestoneId  (client deletes pending milestone)
+// DELETE /api/milestones/:milestoneId (client deletes pending milestone)
 router.delete('/:milestoneId', protect, roleCheck('client'), async (req, res) => {
   try {
-    const milestone = await Milestone.findById(req.params.milestoneId)
-      .populate('projectId');
+    const milestone = await Milestone.findById(req.params.milestoneId).populate('projectId');
     if (!milestone) return res.status(404).json({ message: 'Milestone not found' });
     if (String(milestone.projectId.clientId) !== String(req.user._id))
       return res.status(403).json({ message: 'Not your project' });
@@ -141,7 +152,7 @@ router.delete('/:milestoneId', protect, roleCheck('client'), async (req, res) =>
       return res.status(400).json({ message: 'Can only delete pending milestones' });
 
     await milestone.deleteOne();
-    res.json({ message: 'Deleted' });
+    res.json({ message: 'Milestone removed successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

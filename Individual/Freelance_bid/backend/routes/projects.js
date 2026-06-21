@@ -1,10 +1,10 @@
 import express from 'express';
 import Project from '../models/Project.js';
 import Bid from '../models/Bid.js';
+import Milestone from '../models/Milestone.js'; // Added import to validate milestones on completion
 import { protect } from '../middleware/auth.js';
 import { roleCheck } from '../middleware/roleCheck.js';
 import { createNotification } from '../utils/notify.js';
-
 
 const router = express.Router();
 
@@ -96,7 +96,6 @@ router.post('/:id/bids', protect, roleCheck('student'), async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-
 });
 
 // PUT /api/projects/:id/bids/:bidId/accept
@@ -106,35 +105,32 @@ router.put('/:id/bids/:bidId/accept', protect, roleCheck('client'), async (req, 
     if (!project) return res.status(404).json({ message: 'Project not found' });
     if (String(project.clientId) !== String(req.user._id))
       return res.status(403).json({ message: 'Not your project' });
-    // 1. Reject all other bids
+
     await Bid.updateMany(
       { projectId: req.params.id, _id: { $ne: req.params.bidId } },
       { status: 'rejected' }
     );
-    // 2. Accept this specific bid
+
     const accepted = await Bid.findByIdAndUpdate(
       req.params.bidId, { status: 'accepted' }, { new: true }
     );
-    // 3. Update project status
+
     await Project.findByIdAndUpdate(req.params.id, { status: 'inProgress' });
 
-    // ADD TO NOTIFY THE CLIENT THE SELECTION WAS SUCCESSFUL
     await createNotification(
-      req.user._id, // The Client's authenticated ID
+      req.user._id,
       'project_started',
       `💼 You accepted the proposal for "${project.title}". You can now manage milestones!`,
       `/projects/${req.params.id}/milestones`
     );
 
-    // Notify the accepted student
     await createNotification(
       accepted.studentId,
       'bid_accepted',
-      `🎉 Your bid on "${project.title}" was accepted!`,
+      `🎉 Your bid on "${project.title}" was accepted! Connect with the client via: ${req.user.email}`,
       `/projects/${req.params.id}`
     );
 
-    // Notify rejected students
     const rejectedBids = await Bid.find({
       projectId: req.params.id,
       status: 'rejected',
@@ -148,24 +144,47 @@ router.put('/:id/bids/:bidId/accept', protect, roleCheck('client'), async (req, 
         `/projects/${req.params.id}`
       );
     }
-    // 4. Finally, send the response
     res.json(accepted);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-
 });
 
-// PUT /api/projects/:id/complete  (client marks project complete)
+// PUT /api/projects/:id/complete (Client marks project complete safely)
 router.put('/:id/complete', protect, roleCheck('client'), async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found' });
     if (String(project.clientId) !== String(req.user._id))
       return res.status(403).json({ message: 'Not your project' });
+
+    // 🛡️ Safety check: Ensure no unfinished or unapproved milestones exist
+    const activeMilestones = await Milestone.find({ 
+      projectId: req.params.id, 
+      status: { $ne: 'approved' } 
+    });
+    
+    if (activeMilestones.length > 0) {
+      return res.status(400).json({ 
+        message: 'Cannot complete project. All milestones must be approved and paid out first.' 
+      });
+    }
+
     const updated = await Project.findByIdAndUpdate(
       req.params.id, { status: 'completed' }, { new: true }
     );
+
+    // Notify student that they can now rate the client
+    const acceptedBid = await Bid.findOne({ projectId: req.params.id, status: 'accepted' });
+    if (acceptedBid) {
+      await createNotification(
+        acceptedBid.studentId,
+        'project_completed',
+        `🎉 "${project.title}" is marked completed! Leave your client a review now.`,
+        `/profile/${project.clientId}`
+      );
+    }
+
     res.json(updated);
   } catch (err) {
     res.status(500).json({ message: err.message });

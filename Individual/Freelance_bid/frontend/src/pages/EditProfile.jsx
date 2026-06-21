@@ -23,14 +23,13 @@ export default function EditProfile() {
     });
   }, [user]);
 
-  // Add this useEffect inside EditProfile, after the existing useEffect:
-useEffect(() => {
-  if (window.location.hash === '#portfolio') {
-    setTimeout(() => {
-      document.getElementById('portfolio-section')?.scrollIntoView({ behavior: 'smooth' });
-    }, 300);
-  }
-}, []);
+  useEffect(() => {
+    if (window.location.hash === '#portfolio') {
+      setTimeout(() => {
+        document.getElementById('portfolio-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  }, []);
 
   const saveProfile = async (e) => {
     e.preventDefault();
@@ -39,10 +38,9 @@ useEffect(() => {
       const { data } = await api.put('/users/me', {
         name: form.name,
         bio:  form.bio,
-        skills:    form.skills.split(',').map(s => s.trim()).filter(Boolean),
+        skills: user?.role === 'student' ? form.skills.split(',').map(s => s.trim()).filter(Boolean) : [],
         portfolio,
       });
-      // Update auth context with new name
       const stored = JSON.parse(localStorage.getItem('user') || '{}');
       login({ ...stored, name: data.name });
       setSaved(true);
@@ -75,6 +73,14 @@ useEffect(() => {
     color: 'var(--text-primary)', background: '#fff', outline: 'none',
   };
 
+  // Roles Context Custom Labels
+  const isStudent = user?.role === 'student';
+  const sectionTitle = isStudent ? "Portfolio" : "Company / Project History";
+  const sectionSubtitle = isStudent 
+    ? "Showcase your best work to win more projects" 
+    : "Showcase your business, past ventures, or successful external projects to attract top talent";
+  const itemLabel = isStudent ? "Project Title" : "Project / Venture Name";
+
   return (
     <div style={{ background: 'var(--surface-2)', minHeight: '100vh', padding: '48px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -102,84 +108,82 @@ useEffect(() => {
                 <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={inputStyle} placeholder="Your full name" />
               </Field>
             </FormRow>
-            <Field label="Bio" hint="A short summary about yourself, your background, and what you do">
-              <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7 }} placeholder="Tell clients about yourself, your background, and what makes you unique..." />
+            <Field label="Bio" hint={isStudent ? "A short summary about yourself, your background, and what you do" : "Tell students about your company, brand, or the types of projects you bring to campus"}>
+              <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7 }} placeholder={isStudent ? "Tell clients about yourself, your background, and what makes you unique..." : "Tell campus talent about your business goals, previous operations..."} />
             </Field>
-            {user?.role === 'student' && (
+            {isStudent && (
               <Field label="Skills" hint="Comma-separated list of your technical skills">
                 <input value={form.skills} onChange={e => setForm(f => ({ ...f, skills: e.target.value }))} style={inputStyle} placeholder="React, Node.js, Figma, Python..." />
               </Field>
             )}
           </Section>
 
-          {/* Portfolio section — students only */}
-          {user?.role === 'student' && (
-          <Section id="portfolio-section" title="Portfolio" subtitle="Showcase your best work to win more projects">
-              {/* Existing items */}
-              {portfolio.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-                  {portfolio.map((item, i) => (
-                    <div key={i} style={{
-                      background: 'var(--surface-2)', borderRadius: 10,
-                      padding: '14px 16px', border: '1px solid var(--border)',
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12,
-                    }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>{item.title}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description}</div>
-                        {item.tags?.length > 0 && (
-                          <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
-                            {item.tags.map(t => (
-                              <span key={t} style={{ background: 'var(--accent-light)', color: 'var(--accent)', fontSize: 10, fontWeight: 500, padding: '1px 7px', borderRadius: 5 }}>{t}</span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <button type="button" onClick={() => removePortfolioItem(i)} style={{
-                        background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626',
-                        borderRadius: 7, width: 30, height: 30, cursor: 'pointer',
-                        fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0,
-                      }}>×</button>
+          {/* Unified Dynamic Portfolio Section for Both Roles */}
+          <Section id="portfolio-section" title={sectionTitle} subtitle={sectionSubtitle}>
+            {/* Existing items */}
+            {portfolio.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                {portfolio.map((item, i) => (
+                  <div key={i} style={{
+                    background: 'var(--surface-2)', borderRadius: 10,
+                    padding: '14px 16px', border: '1px solid var(--border)',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12,
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>{item.title}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description}</div>
+                      {item.tags?.length > 0 && (
+                        <div style={{ display: 'flex', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
+                          {item.tags.map(t => (
+                            <span key={t} style={{ background: 'var(--accent-light)', color: 'var(--accent)', fontSize: 10, fontWeight: 500, padding: '1px 7px', borderRadius: 5 }}>{t}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Add new item */}
-              <div style={{
-                background: 'var(--surface-2)', borderRadius: 12,
-                padding: 20, border: '1px dashed var(--border-hover)',
-              }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 14 }}>
-                  + Add Portfolio Item
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <FormRow>
-                    <Field label="Project Title">
-                      <input value={newItem.title} onChange={e => setNewItem(n => ({ ...n, title: e.target.value }))} style={inputStyle} placeholder="e.g. E-commerce Website" />
-                    </Field>
-                    <Field label="Live URL (optional)">
-                      <input value={newItem.projectUrl} onChange={e => setNewItem(n => ({ ...n, projectUrl: e.target.value }))} style={inputStyle} placeholder="https://..." />
-                    </Field>
-                  </FormRow>
-                  <Field label="Description">
-                    <textarea value={newItem.description} onChange={e => setNewItem(n => ({ ...n, description: e.target.value }))} rows={2} style={{ ...inputStyle, resize: 'none' }} placeholder="What did you build? What technologies did you use?" />
-                  </Field>
-                  <Field label="Tags">
-                    <input value={newItem.tags} onChange={e => setNewItem(n => ({ ...n, tags: e.target.value }))} style={inputStyle} placeholder="React, Firebase, Tailwind..." />
-                  </Field>
-                  <button type="button" onClick={addPortfolioItem} style={{
-                    alignSelf: 'flex-start',
-                    padding: '9px 20px', background: 'var(--accent-light)',
-                    color: 'var(--accent)', border: '1px solid var(--accent)',
-                    borderRadius: 8, fontSize: 13, fontWeight: 600,
-                    cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
-                  }}>Add Item</button>
-                </div>
+                    <button type="button" onClick={() => removePortfolioItem(i)} style={{
+                      background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626',
+                      borderRadius: 7, width: 30, height: 30, cursor: 'pointer',
+                      fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>×</button>
+                  </div>
+                ))}
               </div>
-            </Section>
-          )}
+            )}
+
+            {/* Add new item */}
+            <div style={{
+              background: 'var(--surface-2)', borderRadius: 12,
+              padding: 20, border: '1px dashed var(--border-hover)',
+            }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 14 }}>
+                {isStudent ? "+ Add Portfolio Item" : "+ Add Business / Project Milestone"}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <FormRow>
+                  <Field label={itemLabel}>
+                    <input value={newItem.title} onChange={e => setNewItem(n => ({ ...n, title: e.target.value }))} style={inputStyle} placeholder={isStudent ? "e.g. E-commerce Website" : "e.g. Corporate App Ecosystem"} />
+                  </Field>
+                  <Field label="Website Link (optional)">
+                    <input value={newItem.projectUrl} onChange={e => setNewItem(n => ({ ...n, projectUrl: e.target.value }))} style={inputStyle} placeholder="https://..." />
+                  </Field>
+                </FormRow>
+                <Field label="Description">
+                  <textarea value={newItem.description} onChange={e => setNewItem(n => ({ ...n, description: e.target.value }))} rows={2} style={{ ...inputStyle, resize: 'none' }} placeholder={isStudent ? "What did you build? What technologies did you use?" : "Briefly outline what this project achieved or what your company built..."} />
+                </Field>
+                <Field label={isStudent ? "Tags / Technologies" : "Industry Categories"}>
+                  <input value={newItem.tags} onChange={e => setNewItem(n => ({ ...n, tags: e.target.value }))} style={inputStyle} placeholder={isStudent ? "React, Firebase, Tailwind..." : "E-commerce, Logistics, FinTech..."} />
+                </Field>
+                <button type="button" onClick={addPortfolioItem} style={{
+                  alignSelf: 'flex-start',
+                  padding: '9px 20px', background: 'var(--accent-light)',
+                  color: 'var(--accent)', border: '1px solid var(--accent)',
+                  borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
+                }}>Add Item</button>
+              </div>
+            </div>
+          </Section>
 
           {error && (
             <div style={{ padding: '12px 16px', borderRadius: 9, background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: 13, marginBottom: 16 }}>{error}</div>

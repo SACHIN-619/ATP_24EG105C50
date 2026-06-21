@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Transparent Star Asset</title>
+    <style>
+        /* Transparent layout with a tight 200x200px viewport bounding box */
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent !important;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 200px;  
+            height: 200px;
+            position: relative;
+        }
+
+        #canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Golden Star Container */
+        .star-container {
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Extremely slow, elegant idle rotation */
+        .star-container.idle {
+            animation: slowSpin 24s linear infinite;
+        }
+
+        @keyframes slowSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Golden Star SVG Styling */
+        .star-svg {
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        /* Smooth, rhythmic electric vibration */
+        .star-container.shocked {
+            animation: electricPulse 0.25s ease-in-out infinite alternate;
+        }
+
+        @keyframes electricPulse {
+            0% { transform: translate(0px, 0px) scale(1.06); filter: drop-shadow(0 0 4px #ffea00); }
+            100% { transform: translate(-1px, 1px) scale(1.03); filter: drop-shadow(0 0 12px #ffd700); }
+        }
+
+        /* Side Stars (Left and Right) */
+        .side-star {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            top: 32px;
+            opacity: 0;
+            z-index: 1;
+            transform: scale(0.5);
+            transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        .side-star.left {
+            left: -35px;
+        }
+
+        .side-star.right {
+            right: -35px;
+        }
+
+        /* When shocked, pop the side stars out dynamically */
+        .star-container.shocked .side-star {
+            opacity: 0.85;
+            transform: scale(1);
+            animation: sideShockJitter 0.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes sideShockJitter {
+            0% { transform: scale(1) translate(0px, 0px); filter: drop-shadow(0 0 2px #ffd700); }
+            100% { transform: scale(1.05) translate(1px, -1px); filter: drop-shadow(0 0 6px #ffea00); }
+        }
+
+        /* Lightning Beams Container */
+        .shock-beams {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .star-container.shocked .shock-beams {
+            opacity: 1;
+        }
+
+        /* Individual lightning beam properties */
+        .beam {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 35px;
+            background: #ffd700;
+            box-shadow: 0 0 6px #fff, 0 0 12px #ffea00;
+            transform-origin: bottom center;
+            border-radius: 3px;
+            animation: beamFlicker 0.15s ease-in-out infinite alternate;
+        }
+
+        @keyframes beamFlicker {
+            0% { height: 28px; opacity: 0.7; }
+            100% { height: 38px; opacity: 1; }
+        }
+
+        /* Spreading the 8 beams evenly outward */
+        .beam:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg) translateY(-32px); }
+        .beam:nth-child(2) { transform: translate(-50%, -100%) rotate(45deg) translateY(-32px); }
+        .beam:nth-child(3) { transform: translate(-50%, -100%) rotate(90deg) translateY(-32px); }
+        .beam:nth-child(4) { transform: translate(-50%, -100%) rotate(135deg) translateY(-32px); }
+        .beam:nth-child(5) { transform: translate(-50%, -100%) rotate(180deg) translateY(-32px); }
+        .beam:nth-child(6) { transform: translate(-50%, -100%) rotate(225deg) translateY(-32px); }
+        .beam:nth-child(7) { transform: translate(-50%, -100%) rotate(270deg) translateY(-32px); }
+        .beam:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg) translateY(-32px); }
+
+        /* Finger Cursor with smooth transition */
+        #finger-cursor {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            pointer-events: none;
+            z-index: 1000;
+            transition: left 0.6s cubic-bezier(0.25, 1, 0.5, 1), top 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Helper container inside the cursor to handle the tapping scale */
+        .finger-wrapper {
+            width: 100%;
+            height: 100%;
+            transform: translate(-16px, -10px); 
+            transform-origin: 16px 10px;
+        }
+
+        /* Soft, deliberate click compression timing */
+        #finger-cursor.tapping .finger-wrapper {
+            animation: tapEffect 0.4s ease-in-out;
+        }
+
+        @keyframes tapEffect {
+            0% { transform: translate(-16px, -10px) scale(1); }
+            30% { transform: translate(-16px, -10px) scale(0.72); }
+            100% { transform: translate(-16px, -10px) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas">
+        <div id="star" class="star-container idle">
+            <svg class="star-svg" viewBox="0 0 100 100">
+                <path d="M50,8 L63,35 L93,39 L71,60 L76,90 L50,76 L24,90 L29,60 L7,39 L37,35 Z" 
+                      fill="none" 
+                      stroke="#ffd700" 
+                      stroke-width="7" 
+                      stroke-linejoin="round" 
+                      stroke-linecap="round"/>
+            </svg>
+
+            <svg class="side-star left" viewBox="0 0 100 100">
+                <path d="M50,8 L63,35 L93,39 L71,60 L76,90 L50,76 L24,90 L29,60 L7,39 L37,35 Z" 
+                      fill="none" 
+                      stroke="#ffd700" 
+                      stroke-width="7" 
+                      stroke-linejoin="round" 
+                      stroke-linecap="round"/>
+            </svg>
+
+            <svg class="side-star right" viewBox="0 0 100 100">
+                <path d="M50,8 L63,35 L93,39 L71,60 L76,90 L50,76 L24,90 L29,60 L7,39 L37,35 Z" 
+                      fill="none" 
+                      stroke="#ffd700" 
+                      stroke-width="7" 
+                      stroke-linejoin="round" 
+                      stroke-linecap="round"/>
+            </svg>
+
+            <div class="shock-beams">
+                <div class="beam"></div>
+                <div class="beam"></div>
+                <div class="beam"></div>
+                <div class="beam"></div>
+                <div class="beam"></div>
+                <div class="beam"></div>
+                <div class="beam"></div>
+                <div class="beam"></div>
+            </div>
+        </div>
+
+        <div id="finger-cursor">
+            <div class="finger-wrapper">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <path d="M42,40 V18 C42,13 48,13 48,18 V48 H52 V54 C52,51 58,51 58,54 V56 C58,53 64,53 64,56 V58 C64,56 70,56 70,59 V70 C70,82 60,90 48,90 C36,90 32,80 32,70 V52 C32,46 42,46 42,52 Z" 
+                          fill="#ffffff" 
+                          stroke="#000000" 
+                          stroke-width="7" 
+                          stroke-linejoin="round" 
+                          stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const star = document.getElementById('star');
+        const finger = document.getElementById('finger-cursor');
+
+        // Layout target positions inside 200x200 framework
+        const centerX = 100;
+        const centerY = 100;
+        const cornerX = 145;
+        const cornerY = 145;
+
+        // Start off waiting at bottom-right corner
+        finger.style.left = `${cornerX}px`;
+        finger.style.top = `${cornerY}px`;
+
+        function triggerClickLoop() {
+            // 1. Hand glides seamlessly up to the star core center 
+            finger.style.left = `${centerX}px`;
+            finger.style.top = `${centerY}px`;
+
+            // 2. Arrives at target coordinate frame, clicks down, halts spin, pops out lightning + 2 side stars
+            setTimeout(() => {
+                finger.classList.add('tapping');
+                
+                star.classList.remove('idle');
+                star.classList.add('shocked');
+
+                // 3. Keep entire electric burst state loaded for 900ms, then drop cleanly back to idle
+                setTimeout(() => {
+                    star.classList.remove('shocked');
+                    star.classList.add('idle');
+                    
+                    // 4. Slide hand back down out of the center focus lane
+                    finger.classList.remove('tapping');
+                    finger.style.left = `${cornerX}px`;
+                    finger.style.top = `${cornerY}px`;
+                    
+                }, 900); 
+
+            }, 600); 
+
+            // 5. Rest cycles inside corner before repeating execution
+            setTimeout(triggerClickLoop, 3500);
+        }
+
+        // Initialize execution after brief entry pause
+        setTimeout(triggerClickLoop, 1500);
+    </script>
+</body>
+</html>
