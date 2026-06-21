@@ -683,7 +683,8 @@ export default function Home() {
 }
 
 
-export default function Footer() {
+// export default function Footer() {
+function Footer() {
   return (
     <footer style={{ 
       borderTop: '1px solid var(--border)', 
