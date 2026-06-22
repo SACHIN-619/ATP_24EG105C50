@@ -394,7 +394,6 @@
 //     >{children}</button>
 //   );
 // }
-
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -417,19 +416,17 @@ export default function Home() {
     satisfactionRate: '...'
   });
 
-  // Dynamic Threshold Logic: Snaps down to nearest multiple of 10 (e.g., 11-19 -> 10+, 21-29 -> 20+, 105 -> 100+)
+  // Dynamic Threshold Logic: Snaps down to nearest multiple of 10
   const formatToPlusValue = (num) => {
     if (!num || num <= 0) return '0';
-    if (num < 10) return `${num}`; // Single digits display raw values safely
-    return `${Math.floor(num / 10) * 10}+`; // Round down threshold snapping
+    if (num < 10) return `${num}`;
+    return `${Math.floor(num / 10) * 10}+`;
   };
 
   useEffect(() => {
     async function fetchPlatformStats() {
       try {
-        // Fetch from our new dedicated metrics endpoint
         const { data } = await api.get('/auth/platform-stats');
-        
         if (data) {
           setStats({
             studentsCount: formatToPlusValue(data.totalStudents),
@@ -439,18 +436,54 @@ export default function Home() {
         }
       } catch (err) {
         console.error("Error fetching live platform metrics:", err);
-        // Clean default presentation parameters if network drops out
         setStats({ studentsCount: '0', projectsCount: '0', satisfactionRate: '98%' });
       }
     }
-
     fetchPlatformStats();
   }, []);
+
+  /* ── Internal Utility Subcomponents (Prevents Compilation Collision) ── */
+  const PrimaryBtn = ({ children, onClick }) => (
+    <button onClick={onClick} style={{
+      padding: '12px 28px',
+      background: 'var(--accent)',
+      color: '#fff',
+      border: 'none',
+      borderRadius: 10,
+      fontSize: 14,
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontFamily: '"DM Sans", sans-serif',
+      transition: 'background 0.15s',
+      boxShadow: '0 4px 14px rgba(79,70,229,0.3)',
+    }}
+      onMouseEnter={e => e.target.style.background = 'var(--accent-hover)'}
+      onMouseLeave={e => e.target.style.background = 'var(--accent)'}
+    >{children}</button>
+  );
+
+  const SecondaryBtn = ({ children, onClick }) => (
+    <button onClick={onClick} style={{
+      padding: '12px 28px',
+      background: 'transparent',
+      color: 'var(--text-primary)',
+      border: '1px solid var(--border)',
+      borderRadius: 10,
+      fontSize: 14,
+      fontWeight: 500,
+      cursor: 'pointer',
+      fontFamily: '"DM Sans", sans-serif',
+      transition: 'all 0.15s',
+    }}
+      onMouseEnter={e => { e.target.style.background = 'var(--surface-3)'; e.target.style.borderColor = 'var(--border-hover)'; }}
+      onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.borderColor = 'var(--border)'; }}
+    >{children}</button>
+  );
 
   return (
     <div style={{ background: 'var(--surface)' }}>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section style={{
         maxWidth: 1100,
         margin: '0 auto',
@@ -531,7 +564,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Hero visual */}
+        {/* Hero Visual Mockups */}
         <div className="fade-up fade-up-2" style={{ position: 'relative' }}>
           <div style={{
             background: 'linear-gradient(135deg, #F0F0FF 0%, #E8E8FF 50%, #F5F3FF 100%)',
@@ -540,7 +573,6 @@ export default function Home() {
             boxShadow: 'var(--shadow-lg)',
             border: '1px solid rgba(79,70,229,0.08)',
           }}>
-            {/* Mock project card */}
             <div style={{ background: 'var(--surface)', borderRadius: 12, padding: 20, boxShadow: 'var(--shadow-sm)', marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                 <div>
@@ -565,7 +597,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Mock bid */}
             <div style={{ background: 'var(--surface)', borderRadius: 12, padding: 16, boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>S</div>
               <div style={{ flex: 1 }}>
@@ -576,7 +607,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Floating badge */}
           <div style={{
             position: 'absolute', bottom: -16, left: -16,
             background: 'var(--surface)',
@@ -598,7 +628,7 @@ export default function Home() {
         <div style={{ height: 1, background: 'var(--border)' }} />
       </div>
 
-      {/* Features */}
+      {/* Features Grid */}
       <section style={{ maxWidth: 1100, margin: '0 auto', padding: '80px 24px' }}>
         <div className="fade-up" style={{ textAlign: 'center', marginBottom: 56 }}>
           <h2 style={{ fontFamily: '"Playfair Display", serif', fontSize: 36, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12 }}>
@@ -630,11 +660,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{
-        maxWidth: 1100, margin: '0 auto 80px',
-        padding: '0 24px',
-      }}>
+      {/* Action CTA Block */}
+      <section style={{ maxWidth: 1100, margin: '0 auto 80px', padding: '0 24px' }}>
         <div style={{
           background: 'linear-gradient(135deg, var(--accent) 0%, #7C3AED 100%)',
           borderRadius: 24,
@@ -677,85 +704,39 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
-    </div>
-  );
-}
-
-
-function Footer() {
-  return (
-    <footer style={{ 
-      borderTop: '1px solid var(--border)', 
-      background: 'var(--surface)', 
-      padding: '40px 24px 48px', 
-      marginTop: '40px' 
-    }}>
-      <div style={{ 
-        maxWidth: 1100, 
-        margin: '0 auto', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        flexWrap: 'wrap', 
-        gap: 20 
+      {/* Embedded Footer (Prevents Multiple Declared Functions In Module Space) */}
+      <footer style={{ 
+        borderTop: '1px solid var(--border)', 
+        background: 'var(--surface)', 
+        padding: '40px 24px 48px', 
+        marginTop: '40px' 
       }}>
-        <div>
-          <span style={{ fontFamily: '"Playfair Display", serif', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
-            Bid<span style={{ color: 'var(--accent)' }}>Portal</span>
-          </span>
-          <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--text-muted)', fontWeight: 300 }}>
-            © {new Date().getFullYear()} Campus Freelance Hub. All rights reserved.
-          </p>
+        <div style={{ 
+          maxWidth: 1100, 
+          margin: '0 auto', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          flexWrap: 'wrap', 
+          gap: 20 
+        }}>
+          <div>
+            <span style={{ fontFamily: '"Playfair Display", serif', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
+              Bid<span style={{ color: 'var(--accent)' }}>Portal</span>
+            </span>
+            <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--text-muted)', fontWeight: 300 }}>
+              © {new Date().getFullYear()} Campus Freelance Hub. All rights reserved.
+            </p>
+          </div>
+          
+          <div style={{ display: 'flex', gap: 24 }}>
+            <Link to="/projects" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Browse Projects</Link>
+            <Link to="/leaderboard" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>🏆 Leaderboard</Link>
+            <a href="mailto:Sachinkr52990@gmail.com" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Support Contact</a>
+          </div>
         </div>
-        
-        <div style={{ display: 'flex', gap: 24 }}>
-          <Link to="/projects" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Browse Projects</Link>
-          <Link to="/leaderboard" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>🏆 Leaderboard</Link>
-          <a href="mailto:Sachinkr52990@gmail.com" style={{ textDecoration: 'none', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Support Contact</a>
-        </div>
-      </div>
-    </footer>
-  );
-}
+      </footer>
 
-function PrimaryBtn({ children, onClick }) {
-  return (
-    <button onClick={onClick} style={{
-      padding: '12px 28px',
-      background: 'var(--accent)',
-      color: '#fff',
-      border: 'none',
-      borderRadius: 10,
-      fontSize: 14,
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontFamily: '"DM Sans", sans-serif',
-      transition: 'background 0.15s',
-      boxShadow: '0 4px 14px rgba(79,70,229,0.3)',
-    }}
-      onMouseEnter={e => e.target.style.background = 'var(--accent-hover)'}
-      onMouseLeave={e => e.target.style.background = 'var(--accent)'}
-    >{children}</button>
-  );
-}
-
-function SecondaryBtn({ children, onClick }) {
-  return (
-    <button onClick={onClick} style={{
-      padding: '12px 28px',
-      background: 'transparent',
-      color: 'var(--text-primary)',
-      border: '1px solid var(--border)',
-      borderRadius: 10,
-      fontSize: 14,
-      fontWeight: 500,
-      cursor: 'pointer',
-      fontFamily: '"DM Sans", sans-serif',
-      transition: 'all 0.15s',
-    }}
-      onMouseEnter={e => { e.target.style.background = 'var(--surface-3)'; e.target.style.borderColor = 'var(--border-hover)'; }}
-      onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.borderColor = 'var(--border)'; }}
-    >{children}</button>
+    </div>
   );
 }
