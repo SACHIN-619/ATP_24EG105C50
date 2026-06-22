@@ -683,7 +683,6 @@ export default function Home() {
 }
 
 
-// export default function Footer() {
 function Footer() {
   return (
     <footer style={{ 
